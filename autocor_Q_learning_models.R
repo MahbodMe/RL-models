@@ -1,0 +1,257 @@
+
+
+
+
+
+### Symmetric Simple Q learning model 
+
+
+rl_sym_auto_sim <- function(rewards, alpha, beta, phi, tau) {
+  
+  n_trials <- nrow(rewards) # Number of Trials 
+  n_options <- ncol(rewards)-1 # Number of Options
+  choices <- rep(0, n_trials + 1) # All the choices over the trials 
+  agents_rewards <- rep(0, n_trials + 1) # All the rewards over the trials
+  
+  # Estimated value for each arm at trial t
+  q_values <- matrix(0, ncol = n_options, nrow = n_trials + 1)
+  
+  softmax_probs <- rep(0, n_options) 
+  
+  select_randomly <- c(1,2,3,4)
+  
+  # Choice trace for each arm at trial t
+  choice_trace <- matrix(0, ncol = n_options, nrow = n_trials + 1)
+  
+  
+  for (t in 1:n_trials) {
+    
+    # updating softmax probs. for each arm 
+    softmax_probs <- exp(beta*q_values[t,] + phi*choice_trace[t+1,]) 
+    
+    softmax_probs <- softmax_probs / sum(softmax_probs)
+
+    random_selection <- c()
+    
+    for (n in 1:n_options){
+      for (n2 in 1:round(softmax_probs[n]*100)) {
+        random_selection <- c(random_selection, n)
+      }
+    }
+ 
+    
+    choices[t] <- sample(random_selection, 1)
+    
+    
+    if (t < 4){
+      # because of an error the first trial is set to randomly select
+      choices[t] <- sample(select_randomly, 1)
+      select_randomly <- select_randomly[!select_randomly %in% choices[t]]
+      
+    }
+    if (t == 4) {
+      choices[t] <- select_randomly
+    }
+    
+    agents_rewards[t] <- rewards[t, choices[t]+1] # Agents reward at trial t
+    
+    
+    # setting discount value, since the forgetting rate is 0, 
+    # only updates the chosen arm will be updated
+    
+    discount <- rep(0,n_options)
+    discount[choices[t]] <- 1
+    
+    q_values[t+1,] <- q_values[t,] + discount*alpha*(agents_rewards[t] - 
+                                                       q_values[t,])
+    # Choice Trace update
+    
+    indicator <- rep(0,4)
+    indicator[choices[t]] <- 1
+    
+    choice_trace[t+1, ] <- choice_trace[t,] - tau*choice_trace[t,] + tau*indicator
+    
+  }
+  return(list(q_values = q_values, choices = choices, agents_rewards = agents_rewards, 
+              agents_total_rewards = sum(agents_rewards)))
+  
+}
+
+sim_4 <- rl_sym_auto_sim(rewards, .5, 3, .002, 1)
+
+
+
+### Asymmetric Simple Q learning model (RPE)
+
+rl_asym_auto_sim <- function(rewards, positive_alpha, negative_alpha, 
+                                      beta, phi, tau){
+  
+  n_trials <- nrow(rewards) # Number of Trials 
+  n_options <- ncol(rewards)-1 # Number of Options
+  choices <- rep(0, n_trials + 1) # All the choices over the trials 
+  agents_rewards <- rep(0, n_trials + 1) # All the rewards over the trials
+  
+  # Estimated value for each arm at trial t
+  q_values <- matrix(0, ncol = n_options, nrow = n_trials + 1)
+  
+  softmax_probs <- rep(0, n_options) 
+  
+  select_randomly <- c(1,2,3,4)
+  
+  # Choice trace for each arm at trial t
+  choice_trace <- matrix(0, ncol = n_options, nrow = n_trials + 1)
+  
+  
+  for (t in 1:n_trials) {
+    
+    # updating softmax probs. for each arm 
+    softmax_probs <- exp(beta*q_values[t,] + phi*choice_trace[t+1,]) 
+    
+    softmax_probs <- softmax_probs / sum(softmax_probs)
+
+    
+    random_selection <- c()
+    
+    for (n in 1:n_options){
+      for (n2 in 1:round(softmax_probs[n]*100)) {
+        random_selection <- c(random_selection, n)
+      }
+    }
+
+    
+    choices[t] <- sample(random_selection, 1)
+    
+    
+    if (t < 4){
+      # because of an error the first trial is set to randomly select
+      choices[t] <- sample(select_randomly, 1)
+      select_randomly <- select_randomly[!select_randomly %in% choices[t]]
+      
+    }
+    if (t == 4) {
+      choices[t] <- select_randomly
+    }
+    
+    agents_rewards[t] <- rewards[t, choices[t]+1] # Agents reward at trial t
+    
+    
+    # setting discount value, since the forgetting rate is 0, 
+    # only updates the chosen arm will be updated
+    
+    discount <- rep(0,n_options)
+    discount[choices[t]] <- 1
+    
+    if ((agents_rewards[t] - q_values[t,]) < 0){
+      alpha <- negative_alpha 
+    } else {
+      alpha <- positive_alpha
+    }
+    
+    q_values[t+1,] <- q_values[t,] + discount*alpha*(agents_rewards[t] - 
+                                                       q_values[t,])
+    
+    # Choice Trace update
+    
+    indicator <- rep(0,4)
+    indicator[choices[t]] <- 1
+    
+    choice_trace[t+1, ] <- choice_trace[t,] - tau*choice_trace[t,] + tau*indicator
+    
+  }
+  return(list(q_values = q_values, choices = choices, agents_rewards = agents_rewards, 
+              agents_total_rewards = sum(agents_rewards)))
+  # Returning variables of interest 
+}
+
+
+
+sim_5 <- rl_asym_auto_sim(rewards, .6, .2, 3, .002, 1)
+
+
+
+
+
+### Asymmetric Simple Q learning model (actual rewards)
+
+rl_asym_auto_sim2 <- function(rewards, positive_alpha, negative_alpha, 
+                                       beta, phi, tau){
+  
+  n_trials <- nrow(rewards) # Number of Trials 
+  n_options <- ncol(rewards)-1 # Number of Options
+  choices <- rep(0, n_trials + 1) # All the choices over the trials 
+  agents_rewards <- rep(0, n_trials + 1) # All the rewards over the trials
+  
+  # Estimated value for each arm at trial t
+  q_values <- matrix(0, ncol = n_options, nrow = n_trials + 1)
+  
+  softmax_probs <- rep(0, n_options) 
+  
+  select_randomly <- c(1,2,3,4)
+  
+  # Choice trace for each arm at trial t
+  choice_trace <- matrix(0, ncol = n_options, nrow = n_trials + 1)
+  
+  
+  for (t in 1:n_trials) {
+    
+    # updating softmax probs. for each arm 
+    softmax_probs <- exp(beta*q_values[t,] + phi*choice_trace[t+1,]) 
+    
+    softmax_probs <- softmax_probs / sum(softmax_probs)
+    
+
+    random_selection <- c()
+    
+    for (n in 1:n_options){
+      for (n2 in 1:round(softmax_probs[n]*100)) {
+        random_selection <- c(random_selection, n)
+      }
+    }
+    
+    choices[t] <- sample(random_selection, 1)
+    
+    
+    if (t < 4){
+      # because of an error the first trial is set to randomly select
+      choices[t] <- sample(select_randomly, 1)
+      select_randomly <- select_randomly[!select_randomly %in% choices[t]]
+      
+    }
+    if (t == 4) {
+      choices[t] <- select_randomly
+    }
+    
+    agents_rewards[t] <- rewards[t, choices[t]+1] # Agents reward at trial t
+    
+    
+    # setting discount value, since the forgetting rate is 0, 
+    # only updates the chosen arm will be updated
+    
+    discount <- rep(0,n_options)
+    discount[choices[t]] <- 1
+    
+    if ((agents_rewards[t]) < 0){
+      alpha <- negative_alpha 
+    } else {
+      alpha <- positive_alpha
+    }
+    
+    q_values[t+1,] <- q_values[t,] + discount*alpha*(agents_rewards[t] - 
+                                                       q_values[t,])
+    
+    # Choice Trace update
+    
+    indicator <- rep(0,4)
+    indicator[choices[t]] <- 1
+    
+    choice_trace[t+1, ] <- choice_trace[t,] - tau*choice_trace[t,] + tau*indicator
+    
+  }
+  return(list(q_values = q_values, choices = choices, agents_rewards = agents_rewards, 
+              agents_total_rewards = sum(agents_rewards)))
+  # Returning variables of interest 
+}
+
+
+sim_6 <- rl_asym_auto_sim2(rewards, .6, .2, 3, .002, 1)
+
