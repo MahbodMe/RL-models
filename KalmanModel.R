@@ -69,7 +69,7 @@ rl_ucb_sim_expB <- function(rewards, intial_mean, intial_variance,
 }
 
 sim_7 <- rl_ucb_sim_expB(rewards , 0.0, 1000, 16, 16, 1, 1.96)
-sim_7
+
 
 ### Symmetric Simple Q learning model + uncertainty (UCB) 
 ### + exploration bonus + autocorrlation 
