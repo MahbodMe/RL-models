@@ -19,7 +19,7 @@ rl_sym_auto_sim <- function(rewards, alpha, beta, phi, tau) {
   softmax_probs <- rep(0, n_options) 
   
   select_randomly <- c(1,2,3,4)
-  
+  options <- c(1,2,3,4)
   # Choice trace for each arm at trial t
   choice_trace <- matrix(0, ncol = n_options, nrow = n_trials + 1)
   
@@ -31,14 +31,7 @@ rl_sym_auto_sim <- function(rewards, alpha, beta, phi, tau) {
     
     softmax_probs <- softmax_probs / sum(softmax_probs)
 
-    random_selection <- c()
-    
-    for (n in 1:n_options){
-      for (n2 in 1:round(softmax_probs[n]*100)) {
-        random_selection <- c(random_selection, n)
-      }
-    }
- 
+    random_selection <- rep(options, round(softmax_probs*100))
     
     choices[t] <- sample(random_selection, 1)
     
@@ -77,7 +70,7 @@ rl_sym_auto_sim <- function(rewards, alpha, beta, phi, tau) {
   
 }
 
-sim_4 <- rl_sym_auto_sim(rewards, .5, 3, .002, 1)
+sim_4 <- rl_sym_auto_sim(rewards, .5, 3, .002, 0)
 
 
 
@@ -97,6 +90,7 @@ rl_asym_auto_sim <- function(rewards, positive_alpha, negative_alpha,
   softmax_probs <- rep(0, n_options) 
   
   select_randomly <- c(1,2,3,4)
+  options <- c(1,2,3,4)
   
   # Choice trace for each arm at trial t
   choice_trace <- matrix(0, ncol = n_options, nrow = n_trials + 1)
@@ -112,11 +106,7 @@ rl_asym_auto_sim <- function(rewards, positive_alpha, negative_alpha,
     
     random_selection <- c()
     
-    for (n in 1:n_options){
-      for (n2 in 1:round(softmax_probs[n]*100)) {
-        random_selection <- c(random_selection, n)
-      }
-    }
+    random_selection <- rep(options, round(softmax_probs*100))
 
     
     choices[t] <- sample(random_selection, 1)
@@ -187,6 +177,7 @@ rl_asym_auto_sim2 <- function(rewards, positive_alpha, negative_alpha,
   softmax_probs <- rep(0, n_options) 
   
   select_randomly <- c(1,2,3,4)
+  options <- c(1,2,3,4)
   
   # Choice trace for each arm at trial t
   choice_trace <- matrix(0, ncol = n_options, nrow = n_trials + 1)
@@ -202,11 +193,8 @@ rl_asym_auto_sim2 <- function(rewards, positive_alpha, negative_alpha,
 
     random_selection <- c()
     
-    for (n in 1:n_options){
-      for (n2 in 1:round(softmax_probs[n]*100)) {
-        random_selection <- c(random_selection, n)
-      }
-    }
+    random_selection <- rep(options, round(softmax_probs*100))
+    
     
     choices[t] <- sample(random_selection, 1)
     
@@ -254,4 +242,3 @@ rl_asym_auto_sim2 <- function(rewards, positive_alpha, negative_alpha,
 
 
 sim_6 <- rl_asym_auto_sim2(rewards, .6, .2, 3, .002, 1)
-

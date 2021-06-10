@@ -1,32 +1,10 @@
 
 
-### Symmetric Simple Q learning model + unceraitnty (UCB)
-
-
-library(nnet)
-
-
-rl_ucb_sim <- function(rewards,m0,v0,sigma_xi_sq,sigma_epsilon_sq,beta) {
-  nt <- nrow(rewards)
-  no <- ncol(rewards)
-  m <- matrix(m0,ncol=no,nrow=nt+1)
-  v <- matrix(v0,ncol=no,nrow=nt+1)
-  choice <- rep(0,nt)
-  reward <- rep(0.0,nt)
-  for(t in 1:nt) {
-    # choose the option with the highest UCB, breaking ties at random
-    print((m[t,] + beta*sqrt(v[t,]) + sigma_xi_sq))
-    choice[t] <- which.is.max(m[t,] + beta*sqrt(v[t,] + sigma_xi_sq))
-    print(m[t,] + beta*sqrt(v[t,] + sigma_xi_sq))
-    reward[t] <- rewards[t,choice[t]]
-    # Kalman updates:
-    kt <- rep(0,4)
-    kt[choice[t]] <- (v[t,choice[t]] + sigma_xi_sq)/(v[t,choice[t]] + sigma_xi_sq + sigma_epsilon_sq)
-    m[t+1,] <- m[t,] + kt*(reward[t] - m[t,])
-    v[t+1,] <- (1-kt)*(v[t,] + sigma_xi_sq)
-  }
-  return(list(m=m,v=v,choice=choice,reward=reward, total_rewards = sum(reward)))
+sims <- 0
+for (n in 1:1000){
+  sim_5 <- rl_asym_auto_sim(rewards, .6, .2, 3, .002, 1)
+  
+  sims <- sims + sim_5$agents_total_rewards
+  print(sim_5$agents_total_rewards)
 }
-
-
-sim_7 <- rl_ucb_sim(rewards[,-1] , 0.0, 1000, 16, 16, 1.96)
+print(sims/1000)

@@ -19,7 +19,7 @@ rl_simpleQ_symmetric_sim <- function(rewards, alpha, beta) {
   softmax_probs <- rep(0, n_options) 
   
   select_randomly <- c(1,2,3,4)
-  
+  options <- c(1,2,3,4)
   
   for (t in 1:n_trials) {
     
@@ -30,15 +30,10 @@ rl_simpleQ_symmetric_sim <- function(rewards, alpha, beta) {
     
     print(sum(softmax_probs))
     print(softmax_probs)
-    random_selection <- c()
     
-    for (n in 1:n_options){
-      for (n2 in 1:round(softmax_probs[n]*100)) {
-        random_selection <- c(random_selection, n)
-      }
-    }
-    print(random_selection)
-    
+    random_selection <- rep(options, round(softmax_probs*100))
+
+
     choices[t] <- sample(random_selection, 1)
     
     
@@ -47,8 +42,7 @@ rl_simpleQ_symmetric_sim <- function(rewards, alpha, beta) {
       choices[t] <- sample(select_randomly, 1)
       select_randomly <- select_randomly[!select_randomly %in% choices[t]]
       
-    }
-    if (t == 4) {
+    } if (t == 4) {
       choices[t] <- select_randomly
     }
     
@@ -89,6 +83,7 @@ rl_simpleQ_asymmetric_sim <- function(rewards, positive_alpha, negative_alpha, b
   softmax_probs <- rep(0, n_options) 
   
   select_randomly <- c(1,2,3,4)
+  options <- c(1,2,3,4)
   
   
   for (t in 1:n_trials) {
@@ -102,11 +97,8 @@ rl_simpleQ_asymmetric_sim <- function(rewards, positive_alpha, negative_alpha, b
     print(softmax_probs)
     random_selection <- c()
     
-    for (n in 1:n_options){
-      for (n2 in 1:round(softmax_probs[n]*100)) {
-        random_selection <- c(random_selection, n)
-      }
-    }
+    random_selection <- rep(options, round(softmax_probs*100))
+    
     print(random_selection)
     
     choices[t] <- sample(random_selection, 1)
@@ -168,6 +160,8 @@ rl_simpleQ_asymmetric_sim2 <- function(rewards, positive_alpha, negative_alpha, 
   
   select_randomly <- c(1,2,3,4)
   
+  options <- c(1,2,3,4)
+  
   
   for (t in 1:n_trials) {
     
@@ -178,13 +172,9 @@ rl_simpleQ_asymmetric_sim2 <- function(rewards, positive_alpha, negative_alpha, 
     
     print(sum(softmax_probs))
     print(softmax_probs)
-    random_selection <- c()
     
-    for (n in 1:n_options){
-      for (n2 in 1:round(softmax_probs[n]*100)) {
-        random_selection <- c(random_selection, n)
-      }
-    }
+    random_selection <- rep(options, round(softmax_probs*100))
+    
     print(random_selection)
     
     choices[t] <- sample(random_selection, 1)

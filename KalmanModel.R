@@ -29,8 +29,6 @@ rl_ucb_sim_expB <- function(rewards, intial_mean, intial_variance,
     
     choices[t] <- which.is.max(ucb_values) # taking the highest value
     
-    print(ucb_values)
-    
     if (t == 1){
       # because of an error the first trial is set to randomly select
       choices[t] <- sample(c(1,2,3,4), 1)
@@ -104,8 +102,6 @@ rl_ucb_sim_expB_choiceTrace <- function(rewards, intial_mean, intial_variance,
     ucb_values<- ucb_values / sum(ucb_values) 
     
     choices[t] <- which.is.max(ucb_values) # taking the highest value
-    
-    print(ucb_values)
     
     if (t == 1){
       # because of an error the first trial is set to randomly select

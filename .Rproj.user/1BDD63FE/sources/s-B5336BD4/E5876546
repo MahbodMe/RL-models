@@ -1,25 +1,25 @@
 {
-    "id": "5D1ED795",
-    "path": "~/Desktop/Thesis_MSc/Mod/RL_Mod/reward_sim.R",
-    "project_path": "reward_sim.R",
+    "id": "E5876546",
+    "path": "~/Desktop/Thesis_MSc/Mod/RL_Mod/autocor_Q_learning_models.R",
+    "project_path": "autocor_Q_learning_models.R",
     "type": "r_source",
-    "hash": "2622509484",
+    "hash": "0",
     "contents": "",
     "dirty": false,
-    "created": 1621359972664.0,
+    "created": 1623286361310.0,
     "source_on_save": false,
     "relative_order": 1,
     "properties": {
         "tempName": "Untitled1",
-        "cursorPosition": "8,7",
+        "cursorPosition": "72,49",
         "scrollLine": "0"
     },
     "folds": "",
-    "lastKnownWriteTime": 1623011296,
+    "lastKnownWriteTime": 1623189466,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1623011296548,
+    "last_content_update": 1623189466,
     "read_only": false,
     "read_only_alternatives": []
 }

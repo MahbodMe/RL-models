@@ -1,26 +1,26 @@
 {
-    "id": "31E32835",
+    "id": "BFA4B109",
     "path": "~/Desktop/Thesis_MSc/Mod/RL_Mod/Q_learning_models.R",
     "project_path": "Q_learning_models.R",
     "type": "r_source",
     "hash": "0",
     "contents": "",
     "dirty": false,
-    "created": 1622226800599.0,
+    "created": 1623286362215.0,
     "source_on_save": false,
-    "relative_order": 2,
+    "relative_order": 3,
     "properties": {
         "tempName": "Untitled2",
-        "cursorPosition": "228,0",
-        "scrollLine": "198",
+        "cursorPosition": "67,5",
+        "scrollLine": "0",
         "docOutlineVisible": "0"
     },
     "folds": "",
-    "lastKnownWriteTime": 1623045013,
+    "lastKnownWriteTime": 1623189472,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1623045013308,
+    "last_content_update": 1623189472,
     "read_only": false,
     "read_only_alternatives": []
 }
