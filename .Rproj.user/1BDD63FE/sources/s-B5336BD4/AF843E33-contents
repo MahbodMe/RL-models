@@ -16,6 +16,7 @@ for (n in 1:1000){
            rl_ucb_sim_expB_choiceTrace(rewards , 0.0, 1000, 16, 16, 1,
                                        1.96, 0.02, 1)$agents_total_rewards,
            rl_ucb_sim(rewards[,-1] , 0.0, 1000, 16, 16, 1.96)$total_rewards
+          
            )
 
   print(n)
@@ -24,3 +25,5 @@ for (n in 1:1000){
 }
 
 mat_sim[,2] <- mat_sim[,2]/1000
+
+mat_sim

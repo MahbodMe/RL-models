@@ -3,7 +3,7 @@
     "path": "~/Desktop/Thesis_MSc/Mod/RL_Mod/reward_sim.R",
     "project_path": "reward_sim.R",
     "type": "r_source",
-    "hash": "1922533860",
+    "hash": "0",
     "contents": "",
     "dirty": false,
     "created": 1623286362463.0,
@@ -11,15 +11,15 @@
     "relative_order": 3,
     "properties": {
         "tempName": "Untitled1",
-        "cursorPosition": "3,12",
+        "cursorPosition": "19,0",
         "scrollLine": "0"
     },
     "folds": "",
-    "lastKnownWriteTime": 1623311162,
+    "lastKnownWriteTime": 1623331215,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1623311162838,
+    "last_content_update": 1623331215136,
     "read_only": false,
     "read_only_alternatives": []
 }

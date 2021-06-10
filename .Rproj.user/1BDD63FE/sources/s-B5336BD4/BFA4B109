@@ -3,7 +3,7 @@
     "path": "~/Desktop/Thesis_MSc/Mod/RL_Mod/Q_learning_models.R",
     "project_path": "Q_learning_models.R",
     "type": "r_source",
-    "hash": "181750093",
+    "hash": "0",
     "contents": "",
     "dirty": false,
     "created": 1623286362215.0,
@@ -11,8 +11,8 @@
     "relative_order": 2,
     "properties": {
         "tempName": "Untitled2",
-        "cursorPosition": "219,2",
-        "scrollLine": "4",
+        "cursorPosition": "4,0",
+        "scrollLine": "0",
         "docOutlineVisible": "0"
     },
     "folds": "",

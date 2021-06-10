@@ -3,7 +3,7 @@
     "path": "~/Desktop/Thesis_MSc/Mod/RL_Mod/autocor_Q_learning_models.R",
     "project_path": "autocor_Q_learning_models.R",
     "type": "r_source",
-    "hash": "1292953580",
+    "hash": "0",
     "contents": "",
     "dirty": false,
     "created": 1623286361310.0,
@@ -11,8 +11,8 @@
     "relative_order": 1,
     "properties": {
         "tempName": "Untitled1",
-        "cursorPosition": "244,0",
-        "scrollLine": "150"
+        "cursorPosition": "7,0",
+        "scrollLine": "1"
     },
     "folds": "",
     "lastKnownWriteTime": 1623312801,

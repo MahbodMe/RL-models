@@ -23,9 +23,9 @@ rl_ucb_sim_expB <- function(rewards, intial_mean, intial_variance,
   
   for (t in 1:n_trials) {
     
-    ucb_values[] <- exp((beta*arm_mean[t,] + exploration_bonus[]))
+    ucb_values <- exp((beta*arm_mean[t,] + exploration_bonus[]))
     
-    ucb_values<- ucb_values / sum(ucb_values) 
+    ucb_values <- ucb_values / sum(ucb_values) 
     
     choices[t] <- which.is.max(ucb_values) # taking the highest value
     
@@ -48,7 +48,6 @@ rl_ucb_sim_expB <- function(rewards, intial_mean, intial_variance,
     
     # Updating exploration bonus value
     exploration_bonus <- beta2*sqrt(arm_variance[t,]+innovation_term)
-
 
     # Updating mean utility of each arm
     arm_mean[t+1, ] <- arm_mean[t, ] + 
