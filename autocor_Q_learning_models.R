@@ -18,8 +18,8 @@ rl_sym_auto_sim <- function(rewards, alpha, beta, phi, tau) {
   
   softmax_probs <- rep(0, n_options) 
   
-  select_randomly <- c(1,2,3,4)
-  options <- c(1,2,3,4)
+  select_randomly <- rep(1:n_options, 1)
+  options <- rep(1:n_options, 1)
   # Choice trace for each arm at trial t
   choice_trace <- matrix(0, ncol = n_options, nrow = n_trials + 1)
   
@@ -36,13 +36,13 @@ rl_sym_auto_sim <- function(rewards, alpha, beta, phi, tau) {
     choices[t] <- sample(random_selection, 1)
     
     
-    if (t < 4){
+    if (t < n_options){
       # because of an error the first trial is set to randomly select
       choices[t] <- sample(select_randomly, 1)
       select_randomly <- select_randomly[!select_randomly %in% choices[t]]
       
     }
-    if (t == 4) {
+    if (t == n_options) {
       choices[t] <- select_randomly
     }
     
@@ -59,7 +59,7 @@ rl_sym_auto_sim <- function(rewards, alpha, beta, phi, tau) {
                                                        q_values[t,])
     # Choice Trace update
     
-    indicator <- rep(0,4)
+    indicator <- rep(0,n_options)
     indicator[choices[t]] <- 1
     
     choice_trace[t+1, ] <- choice_trace[t,] - tau*choice_trace[t,] + tau*indicator
@@ -89,8 +89,8 @@ rl_asym_auto_sim <- function(rewards, positive_alpha, negative_alpha,
   
   softmax_probs <- rep(0, n_options) 
   
-  select_randomly <- c(1,2,3,4)
-  options <- c(1,2,3,4)
+  select_randomly <- rep(1:n_options, 1)
+  options <- rep(1:n_options, 1)
   
   # Choice trace for each arm at trial t
   choice_trace <- matrix(0, ncol = n_options, nrow = n_trials + 1)
@@ -112,13 +112,13 @@ rl_asym_auto_sim <- function(rewards, positive_alpha, negative_alpha,
     choices[t] <- sample(random_selection, 1)
     
     
-    if (t < 4){
+    if (t < n_options){
       # because of an error the first trial is set to randomly select
       choices[t] <- sample(select_randomly, 1)
       select_randomly <- select_randomly[!select_randomly %in% choices[t]]
       
     }
-    if (t == 4) {
+    if (t == n_options) {
       choices[t] <- select_randomly
     }
     
@@ -142,7 +142,7 @@ rl_asym_auto_sim <- function(rewards, positive_alpha, negative_alpha,
     
     # Choice Trace update
     
-    indicator <- rep(0,4)
+    indicator <- rep(0,n_options)
     indicator[choices[t]] <- 1
     
     choice_trace[t+1, ] <- choice_trace[t,] - tau*choice_trace[t,] + tau*indicator
@@ -176,8 +176,8 @@ rl_asym_auto_sim2 <- function(rewards, positive_alpha, negative_alpha,
   
   softmax_probs <- rep(0, n_options) 
   
-  select_randomly <- c(1,2,3,4)
-  options <- c(1,2,3,4)
+  select_randomly <- rep(1:n_options, 1)
+  options <- rep(1:n_options, 1)
   
   # Choice trace for each arm at trial t
   choice_trace <- matrix(0, ncol = n_options, nrow = n_trials + 1)
@@ -199,13 +199,13 @@ rl_asym_auto_sim2 <- function(rewards, positive_alpha, negative_alpha,
     choices[t] <- sample(random_selection, 1)
     
     
-    if (t < 4){
+    if (t < n_options){
       # because of an error the first trial is set to randomly select
       choices[t] <- sample(select_randomly, 1)
       select_randomly <- select_randomly[!select_randomly %in% choices[t]]
       
     }
-    if (t == 4) {
+    if (t == n_options) {
       choices[t] <- select_randomly
     }
     
@@ -229,7 +229,7 @@ rl_asym_auto_sim2 <- function(rewards, positive_alpha, negative_alpha,
     
     # Choice Trace update
     
-    indicator <- rep(0,4)
+    indicator <- rep(0,n_options)
     indicator[choices[t]] <- 1
     
     choice_trace[t+1, ] <- choice_trace[t,] - tau*choice_trace[t,] + tau*indicator

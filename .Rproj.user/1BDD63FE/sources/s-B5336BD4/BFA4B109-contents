@@ -18,8 +18,10 @@ rl_simpleQ_symmetric_sim <- function(rewards, alpha, beta) {
   
   softmax_probs <- rep(0, n_options) 
   
-  select_randomly <- c(1,2,3,4)
-  options <- c(1,2,3,4)
+  select_randomly <- rep(1:n_options, 1)
+  options <- rep(1:n_options, 1)
+  
+  
   
   for (t in 1:n_trials) {
     
@@ -27,22 +29,19 @@ rl_simpleQ_symmetric_sim <- function(rewards, alpha, beta) {
     softmax_probs <- exp(beta*q_values[t,]) 
     
     softmax_probs <- softmax_probs / sum(softmax_probs)
-    
-    print(sum(softmax_probs))
-    print(softmax_probs)
-    
+
     random_selection <- rep(options, round(softmax_probs*100))
 
 
     choices[t] <- sample(random_selection, 1)
     
-    
-    if (t < 4){
+    if (t < n_options){
       # because of an error the first trial is set to randomly select
       choices[t] <- sample(select_randomly, 1)
       select_randomly <- select_randomly[!select_randomly %in% choices[t]]
       
-    } if (t == 4) {
+    } 
+    if (t == n_options) {
       choices[t] <- select_randomly
     }
     
@@ -60,12 +59,17 @@ rl_simpleQ_symmetric_sim <- function(rewards, alpha, beta) {
     
   }
   return(list(q_values = q_values, choices = choices, agents_rewards = agents_rewards, 
-              agents_total_rewards = sum(agents_rewards)))
+              agents_total_rewards = sum(agents_rewards) ))
   
 }
 
 
 sim_1 <- rl_simpleQ_symmetric_sim(rewards, .5, 3)
+
+
+
+
+
 
 
 ### Asymmetric Simple Q learning model (RPE)
@@ -82,8 +86,8 @@ rl_simpleQ_asymmetric_sim <- function(rewards, positive_alpha, negative_alpha, b
   
   softmax_probs <- rep(0, n_options) 
   
-  select_randomly <- c(1,2,3,4)
-  options <- c(1,2,3,4)
+  select_randomly <- rep(1:n_options, 1)
+  options <- rep(1:n_options, 1)
   
   
   for (t in 1:n_trials) {
@@ -93,24 +97,23 @@ rl_simpleQ_asymmetric_sim <- function(rewards, positive_alpha, negative_alpha, b
     
     softmax_probs <- softmax_probs / sum(softmax_probs)
     
-    print(sum(softmax_probs))
-    print(softmax_probs)
+
     random_selection <- c()
     
     random_selection <- rep(options, round(softmax_probs*100))
     
-    print(random_selection)
+
     
     choices[t] <- sample(random_selection, 1)
     
     
-    if (t < 4){
+    if (t < n_options){
       # because of an error the first trial is set to randomly select
       choices[t] <- sample(select_randomly, 1)
       select_randomly <- select_randomly[!select_randomly %in% choices[t]]
       
     }
-    if (t == 4) {
+    if (t == n_options) {
       choices[t] <- select_randomly
     }
     
@@ -158,9 +161,9 @@ rl_simpleQ_asymmetric_sim2 <- function(rewards, positive_alpha, negative_alpha, 
   
   softmax_probs <- rep(0, n_options) 
   
-  select_randomly <- c(1,2,3,4)
+  select_randomly <- rep(1:n_options, 1)
   
-  options <- c(1,2,3,4)
+  options <- rep(1:n_options, 1)
   
   
   for (t in 1:n_trials) {
@@ -169,24 +172,21 @@ rl_simpleQ_asymmetric_sim2 <- function(rewards, positive_alpha, negative_alpha, 
     softmax_probs <- exp(beta*q_values[t,]) 
     
     softmax_probs <- softmax_probs / sum(softmax_probs)
-    
-    print(sum(softmax_probs))
-    print(softmax_probs)
-    
+
     random_selection <- rep(options, round(softmax_probs*100))
     
-    print(random_selection)
+
     
     choices[t] <- sample(random_selection, 1)
     
     
-    if (t < 4){
+    if (t < n_options){
       # because of an error the first trial is set to randomly select
       choices[t] <- sample(select_randomly, 1)
       select_randomly <- select_randomly[!select_randomly %in% choices[t]]
       
     }
-    if (t == 4) {
+    if (t == n_options) {
       choices[t] <- select_randomly
     }
     

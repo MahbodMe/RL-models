@@ -1,4 +1,4 @@
-set.seed(123) # set the random seed to replicate these results exactly
+set.seed(3) # set the random seed to replicate these results exactly
 mu <- matrix(0.0,nrow=200,ncol=4) # to store the time-varying means
 mu[1,] <- c(-60, -20, 20, 60) # initialize the means for t=1
 for(t in 2:200) {

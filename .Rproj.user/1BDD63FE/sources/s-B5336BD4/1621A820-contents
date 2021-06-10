@@ -17,9 +17,9 @@ rl_ucb_sim_expB <- function(rewards, intial_mean, intial_variance,
   arm_variance <- matrix(intial_variance, ncol = n_options, 
                          nrow = n_trials + 1)
   
-  ucb_values <- rep(0,4) # Contains UCB value for each arm
-  kalman_t <- rep(0,4) # Contains Kalman gain for each arm
-  exploration_bonus <- rep(0,4)  # exploration bonus
+  ucb_values <- rep(0,n_options) # Contains UCB value for each arm
+  kalman_t <- rep(0,n_options) # Contains Kalman gain for each arm
+  exploration_bonus <- rep(0,n_options)  # exploration bonus
   
   for (t in 1:n_trials) {
     
@@ -31,7 +31,7 @@ rl_ucb_sim_expB <- function(rewards, intial_mean, intial_variance,
     
     if (t == 1){
       # because of an error the first trial is set to randomly select
-      choices[t] <- sample(c(1,2,3,4), 1)
+      choices[t] <- sample(rep(1:n_options,1),1)
     }
     
     
@@ -87,9 +87,9 @@ rl_ucb_sim_expB_choiceTrace <- function(rewards, intial_mean, intial_variance,
   arm_variance <- matrix(intial_variance, ncol = n_options, 
                          nrow = n_trials + 1)
   
-  ucb_values <- rep(0,4) # Contains UCB value for each arm
-  kalman_t <- rep(0,4) # Contains Kalman gain for each arm
-  exploration_bonus <- rep(0,4)  # exploration bonus
+  ucb_values <- rep(0,n_options) # Contains UCB value for each arm
+  kalman_t <- rep(0,n_options) # Contains Kalman gain for each arm
+  exploration_bonus <- rep(0,n_options)  # exploration bonus
   
   # Choice trace for each arm at trial t
   choice_trace <- matrix(0, ncol = n_options, nrow = n_trials + 1)
@@ -105,7 +105,7 @@ rl_ucb_sim_expB_choiceTrace <- function(rewards, intial_mean, intial_variance,
     
     if (t == 1){
       # because of an error the first trial is set to randomly select
-      choices[t] <- sample(c(1,2,3,4), 1)
+      choices[t] <- sample(rep(1:n_options,1),1)
     }
     
     
@@ -134,7 +134,7 @@ rl_ucb_sim_expB_choiceTrace <- function(rewards, intial_mean, intial_variance,
     
     # Choice Trace update
     
-    indicator <- rep(0,4)
+    indicator <- rep(0,n_options)
     indicator[choices[t]] <- 1
     
     choice_trace[t+1, ] <- choice_trace[t,] - tau*choice_trace[t,] + tau*indicator
