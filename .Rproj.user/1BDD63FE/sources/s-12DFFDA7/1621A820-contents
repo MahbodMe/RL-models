@@ -23,7 +23,7 @@ rl_ucb_sim_expB <- function(rewards, intial_mean, intial_variance,
   
   for (t in 1:n_trials) {
     
-    ucb_values <- exp((beta*arm_mean[t,] + exploration_bonus[]))
+    ucb_values <- exp((beta*arm_mean[t,] + exploration_bonus))
     
     ucb_values <- ucb_values / sum(ucb_values) 
     
@@ -96,7 +96,7 @@ rl_ucb_sim_expB_choiceTrace <- function(rewards, intial_mean, intial_variance,
   
   for (t in 1:n_trials) {
     
-    ucb_values[] <-(beta*arm_mean[t,] + exploration_bonus[] + choice_trace[t,])  
+    ucb_values[] <-(beta*arm_mean[t,] + exploration_bonus + choice_trace[t,])  
     
     ucb_values<- ucb_values / sum(ucb_values) 
     

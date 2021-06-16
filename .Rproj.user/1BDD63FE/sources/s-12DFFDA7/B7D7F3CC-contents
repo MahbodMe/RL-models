@@ -27,6 +27,7 @@ rl_ucb_sim <- function(rewards,m0,v0,sigma_xi_sq,sigma_epsilon_sq,beta) {
     m[t+1,] <- m[t,] + kt*(reward[t] - m[t,])
     v[t+1,] <- (1-kt)*(v[t,] + sigma_xi_sq)
   }
+
   return(list(m=m,v=v,choice=choice, reward=reward, total_rewards = sum(reward)))
 }
 

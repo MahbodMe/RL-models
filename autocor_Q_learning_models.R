@@ -31,13 +31,12 @@ rl_sym_auto_sim <- function(rewards, alpha, beta, phi, tau) {
     
     softmax_probs <- softmax_probs / sum(softmax_probs)
 
-    random_selection <- rep(options, round(softmax_probs*100))
+    choices[t] <- sample(options, size = 1, prob = softmax_probs)
     
-    choices[t] <- sample(random_selection, 1)
     
     
     if (t < n_options){
-      # because of an error the first trial is set to randomly select
+      # because of an error the first trial i
       choices[t] <- sample(select_randomly, 1)
       select_randomly <- select_randomly[!select_randomly %in% choices[t]]
       
@@ -104,12 +103,7 @@ rl_asym_auto_sim <- function(rewards, positive_alpha, negative_alpha,
     softmax_probs <- softmax_probs / sum(softmax_probs)
 
     
-    random_selection <- c()
-    
-    random_selection <- rep(options, round(softmax_probs*100))
-
-    
-    choices[t] <- sample(random_selection, 1)
+    choices[t] <- sample(options, size = 1, prob = softmax_probs)
     
     
     if (t < n_options){
@@ -191,12 +185,7 @@ rl_asym_auto_sim2 <- function(rewards, positive_alpha, negative_alpha,
     softmax_probs <- softmax_probs / sum(softmax_probs)
     
 
-    random_selection <- c()
-    
-    random_selection <- rep(options, round(softmax_probs*100))
-    
-    
-    choices[t] <- sample(random_selection, 1)
+    choices[t] <- sample(options, size = 1, prob = softmax_probs)
     
     
     if (t < n_options){
