@@ -31,17 +31,32 @@ kf_sm_lik <- function(data, par) {
   return(lik)
 }
 
-kf_sm_lik(df_sim_1, c(3))
+kf_sm_logLik <- function(par,data) {
+  gamma <- par[1]
+  choice <- data$deck
+  reward <- data$payoff
+  m <- kalman_filter(choice,reward,4,0,1000,16,16)$m
+  p <- softmax_choice_prob(m,gamma)
+  lik <- p[cbind(1:nrow(data),choice)]
+  logLik <- sum(log(lik))*-1
+  return(logLik)
+}
 
-
-gamma <- seq(0,2, length=200)
 out <- rep(NA,length=length(gamma))
-for (i in 1:length(gamma)) out[i] <- kf_sm_lik(c(gamma[i]), df_sim_1)
-plot(gamma,out,ylab="likelihood",xlab=expression(gamma))
+for(i in 1:length(gamma)) out[i] <- kf_sm_logLik(gamma[i],tdat)
+plot(gamma,out,ylab="log-likelihood",xlab=expression(gamma))
+
+gamma[which.max(out)]
+
+kf_sm_negLogLik <- function(par,data) {
+  -kf_sm_lik(par,data)
+}
+
+
+optim(par=.35,fn=kf_sm_logLik,data=tdat)
+
+optim(par=.35,fn=kf_sm_logLik,method="Brent",lower=0,upper=100,data=tdat)
 
 
 
-gamma <- seq(0,2,length=200)
-out <- rep(NA,length=length(gamma))
-for(i in 1:length(gamma)) out[i] <- kf_sm_lik(gamma[i],df_sim_1)
-plot(gamma,out,ylab="likelihood",xlab=expression(gamma))
+

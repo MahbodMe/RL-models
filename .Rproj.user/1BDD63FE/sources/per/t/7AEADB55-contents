@@ -32,8 +32,9 @@ df_sim_1 <- sim_behav_data(rewards, 1, rl_simpleQ_symmetric_sim, c(.5,3))
 
 sum(df_sim_1$payoff[1:200])
 
-df_sim_2 <- sim_behav_data(rewards, 10, rl_ucb_sim_expB, 
+df_sim_2 <- sim_behav_data(rewards, 1, rl_ucb_sim_expB, 
                            c(0.0, 1000, 16, 16, 1, 1.96))
+
 
 
 sum(df_sim_2$payoff[1:200])
