@@ -115,7 +115,7 @@ rl_simpleQ_asymmetric_sim <- function(rewards, positive_alpha, negative_alpha, b
     discount <- rep(0,n_options)
     discount[choices[t]] <- 1
 
-    if ((agents_rewards[t] - q_values[t,]) < 0){
+    if ((agents_rewards[t] - q_values[t,choices[t]]) < 0){
       alpha <- negative_alpha 
     } else {
       alpha <- positive_alpha

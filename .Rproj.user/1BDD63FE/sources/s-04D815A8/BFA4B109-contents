@@ -6,13 +6,13 @@
 ### Symmetric Simple Q learning model 
 
 
-rl_sym_auto_sim <- function(rewards, alpha, beta, phi, tau) {
+rl_simpleQ_symmetric_sim <- function(rewards, alpha, beta) {
   
   n_trials <- nrow(rewards) # Number of Trials 
   n_options <- ncol(rewards)-1 # Number of Options
   choices <- rep(0, n_trials + 1) # All the choices over the trials 
   agents_rewards <- rep(0, n_trials + 1) # All the rewards over the trials
-  
+
   # Estimated value for each arm at trial t
   q_values <- matrix(0, ncol = n_options, nrow = n_trials + 1)
   
@@ -20,27 +20,24 @@ rl_sym_auto_sim <- function(rewards, alpha, beta, phi, tau) {
   
   select_randomly <- rep(1:n_options, 1)
   options <- rep(1:n_options, 1)
-  # Choice trace for each arm at trial t
-  choice_trace <- matrix(0, ncol = n_options, nrow = n_trials + 1)
+  
   
   
   for (t in 1:n_trials) {
     
     # updating softmax probs. for each arm 
-    softmax_probs <- exp(beta*q_values[t,] + phi*choice_trace[t+1,]) 
+    softmax_probs <- exp(beta*q_values[t,]) 
     
     softmax_probs <- softmax_probs / sum(softmax_probs)
 
     choices[t] <- sample(options, size = 1, prob = softmax_probs)
     
-    
-    
     if (t < n_options){
-      # because of an error the first trial i
+      # because of an error the first trial is set to randomly select
       choices[t] <- sample(select_randomly, 1)
       select_randomly <- select_randomly[!select_randomly %in% choices[t]]
       
-    }
+    } 
     if (t == n_options) {
       choices[t] <- select_randomly
     }
@@ -56,27 +53,25 @@ rl_sym_auto_sim <- function(rewards, alpha, beta, phi, tau) {
     
     q_values[t+1,] <- q_values[t,] + discount*alpha*(agents_rewards[t] - 
                                                        q_values[t,])
-    # Choice Trace update
-    
-    indicator <- rep(0,n_options)
-    indicator[choices[t]] <- 1
-    
-    choice_trace[t+1, ] <- choice_trace[t,] - tau*choice_trace[t,] + tau*indicator
     
   }
   return(list(q_values = q_values, choices = choices, agents_rewards = agents_rewards, 
-              agents_total_rewards = sum(agents_rewards)))
+              agents_total_rewards = sum(agents_rewards) ))
   
 }
 
-sim_4 <- rl_sym_auto_sim(rewards, .5, 3, .002, 0)
+
+sim_1 <- rl_simpleQ_symmetric_sim(rewards, .5, 3)
+
+
+
+
 
 
 
 ### Asymmetric Simple Q learning model (RPE)
 
-rl_asym_auto_sim <- function(rewards, positive_alpha, negative_alpha, 
-                                      beta, phi, tau){
+rl_simpleQ_asymmetric_sim <- function(rewards, positive_alpha, negative_alpha, beta){
   
   n_trials <- nrow(rewards) # Number of Trials 
   n_options <- ncol(rewards)-1 # Number of Options
@@ -91,20 +86,15 @@ rl_asym_auto_sim <- function(rewards, positive_alpha, negative_alpha,
   select_randomly <- rep(1:n_options, 1)
   options <- rep(1:n_options, 1)
   
-  # Choice trace for each arm at trial t
-  choice_trace <- matrix(0, ncol = n_options, nrow = n_trials + 1)
-  
   
   for (t in 1:n_trials) {
     
     # updating softmax probs. for each arm 
-    softmax_probs <- exp(beta*q_values[t,] + phi*choice_trace[t+1,]) 
+    softmax_probs <- exp(beta*q_values[t,]) 
     
     softmax_probs <- softmax_probs / sum(softmax_probs)
-
     
     choices[t] <- sample(options, size = 1, prob = softmax_probs)
-    
     
     if (t < n_options){
       # because of an error the first trial is set to randomly select
@@ -124,8 +114,8 @@ rl_asym_auto_sim <- function(rewards, positive_alpha, negative_alpha,
     
     discount <- rep(0,n_options)
     discount[choices[t]] <- 1
-    
-    if ((agents_rewards[t] - q_values[t,]) < 0){
+
+    if ((agents_rewards[t] - q_values[t,choices[t]]) < 0){
       alpha <- negative_alpha 
     } else {
       alpha <- positive_alpha
@@ -133,13 +123,6 @@ rl_asym_auto_sim <- function(rewards, positive_alpha, negative_alpha,
     
     q_values[t+1,] <- q_values[t,] + discount*alpha*(agents_rewards[t] - 
                                                        q_values[t,])
-    
-    # Choice Trace update
-    
-    indicator <- rep(0,n_options)
-    indicator[choices[t]] <- 1
-    
-    choice_trace[t+1, ] <- choice_trace[t,] - tau*choice_trace[t,] + tau*indicator
     
   }
   return(list(q_values = q_values, choices = choices, agents_rewards = agents_rewards, 
@@ -149,16 +132,13 @@ rl_asym_auto_sim <- function(rewards, positive_alpha, negative_alpha,
 
 
 
-sim_5 <- rl_asym_auto_sim(rewards, .6, .2, 3, .002, 1)
+sim_2 <- rl_simpleQ_asymmetric_sim(rewards, .6, .2, 3)
 
-
-
-
-
+  
+  
 ### Asymmetric Simple Q learning model (actual rewards)
 
-rl_asym_auto_sim2 <- function(rewards, positive_alpha, negative_alpha, 
-                                       beta, phi, tau){
+rl_simpleQ_asymmetric_sim2 <- function(rewards, positive_alpha, negative_alpha, beta){
   
   n_trials <- nrow(rewards) # Number of Trials 
   n_options <- ncol(rewards)-1 # Number of Options
@@ -171,22 +151,18 @@ rl_asym_auto_sim2 <- function(rewards, positive_alpha, negative_alpha,
   softmax_probs <- rep(0, n_options) 
   
   select_randomly <- rep(1:n_options, 1)
-  options <- rep(1:n_options, 1)
   
-  # Choice trace for each arm at trial t
-  choice_trace <- matrix(0, ncol = n_options, nrow = n_trials + 1)
+  options <- rep(1:n_options, 1)
   
   
   for (t in 1:n_trials) {
     
     # updating softmax probs. for each arm 
-    softmax_probs <- exp(beta*q_values[t,] + phi*choice_trace[t+1,]) 
+    softmax_probs <- exp(beta*q_values[t,]) 
     
     softmax_probs <- softmax_probs / sum(softmax_probs)
     
-
     choices[t] <- sample(options, size = 1, prob = softmax_probs)
-    
     
     if (t < n_options){
       # because of an error the first trial is set to randomly select
@@ -216,13 +192,6 @@ rl_asym_auto_sim2 <- function(rewards, positive_alpha, negative_alpha,
     q_values[t+1,] <- q_values[t,] + discount*alpha*(agents_rewards[t] - 
                                                        q_values[t,])
     
-    # Choice Trace update
-    
-    indicator <- rep(0,n_options)
-    indicator[choices[t]] <- 1
-    
-    choice_trace[t+1, ] <- choice_trace[t,] - tau*choice_trace[t,] + tau*indicator
-    
   }
   return(list(q_values = q_values, choices = choices, agents_rewards = agents_rewards, 
               agents_total_rewards = sum(agents_rewards)))
@@ -230,4 +199,6 @@ rl_asym_auto_sim2 <- function(rewards, positive_alpha, negative_alpha,
 }
 
 
-sim_6 <- rl_asym_auto_sim2(rewards, .6, .2, 3, .002, 1)
+
+sim_3 <- rl_simpleQ_asymmetric_sim2(rewards, .6, .2, 3)
+  

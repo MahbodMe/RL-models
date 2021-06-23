@@ -69,7 +69,7 @@ rl_sym_auto_sim <- function(rewards, alpha, beta, phi, tau) {
   
 }
 
-sim_4 <- rl_sym_auto_sim(rewards, .5, 3, .002, 0)
+sim_4 <- rl_sym_auto_sim(rewards, .5, 3, .5, .8)
 
 
 
@@ -125,7 +125,7 @@ rl_asym_auto_sim <- function(rewards, positive_alpha, negative_alpha,
     discount <- rep(0,n_options)
     discount[choices[t]] <- 1
     
-    if ((agents_rewards[t] - q_values[t,]) < 0){
+    if ((agents_rewards[t] - q_values[t, choices[t]]) < 0){
       alpha <- negative_alpha 
     } else {
       alpha <- positive_alpha
@@ -149,7 +149,7 @@ rl_asym_auto_sim <- function(rewards, positive_alpha, negative_alpha,
 
 
 
-sim_5 <- rl_asym_auto_sim(rewards, .6, .2, 3, .002, 1)
+sim_5 <- rl_asym_auto_sim(rewards, .6, .2, 3, .02, 1)
 
 
 

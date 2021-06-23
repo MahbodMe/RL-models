@@ -5,7 +5,7 @@ library(nnet)
 
 
 rl_ucb_sim_expB <- function(rewards, initial_mean, initial_variance, 
-                            innovation_term, error_term, beta, beta2) {
+                            innovation_term, error_term, gamma, beta) {
   
   n_trials <- nrow(rewards) # Number of Trials 
   n_options <- ncol(rewards)-1 # Number of Options
@@ -23,7 +23,7 @@ rl_ucb_sim_expB <- function(rewards, initial_mean, initial_variance,
   
   for (t in 1:n_trials) {
     
-    ucb_values <- exp((beta*arm_mean[t,] + exploration_bonus))
+    ucb_values <- exp((gamma*arm_mean[t,] + exploration_bonus))
     
     ucb_values <- ucb_values / sum(ucb_values) 
     
@@ -49,7 +49,7 @@ rl_ucb_sim_expB <- function(rewards, initial_mean, initial_variance,
     discount[choices[t]] <- 1
     
     # Updating exploration bonus value
-    exploration_bonus <- beta2*sqrt(arm_variance[t,]+innovation_term)
+    exploration_bonus <- beta*sqrt(arm_variance[t,]+innovation_term)
 
     # Updating mean utility of each arm
     arm_mean[t+1, ] <- arm_mean[t, ] + 
@@ -75,8 +75,8 @@ sim_7 <- rl_ucb_sim_expB(rewards , 0.0, 1000, 16, 16, 1, 1.96)
 
 
 rl_ucb_sim_expB_choiceTrace <- function(rewards, initial_mean, initial_variance, 
-                                        innovation_term, error_term, beta, 
-                                        beta2, phi, tau){
+                                        innovation_term, error_term, gamma, 
+                                        beta, phi, tau){
   
   n_trials <- nrow(rewards) # Number of Trials 
   n_options <- ncol(rewards)-1 # Number of Options
@@ -98,7 +98,7 @@ rl_ucb_sim_expB_choiceTrace <- function(rewards, initial_mean, initial_variance,
   
   for (t in 1:n_trials) {
     
-    ucb_values[] <-(beta*arm_mean[t,] + exploration_bonus + choice_trace[t,])  
+    ucb_values[] <-(gamma*arm_mean[t,] + exploration_bonus + choice_trace[t,])  
     
     ucb_values<- ucb_values / sum(ucb_values) 
     
@@ -122,7 +122,7 @@ rl_ucb_sim_expB_choiceTrace <- function(rewards, initial_mean, initial_variance,
     discount[choices[t]] <- 1
     
     # Updating exploration bonus value
-    exploration_bonus <- beta2*sqrt(arm_variance[t,]+innovation_term)
+    exploration_bonus <- beta*sqrt(arm_variance[t,]+innovation_term)
     
     
     # Updating mean utility of each arm

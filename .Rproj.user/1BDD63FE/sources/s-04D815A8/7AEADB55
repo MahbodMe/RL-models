@@ -3,23 +3,23 @@
     "path": "~/Desktop/Thesis_MSc/Mod/RL_Mod/sim_behav_data.R",
     "project_path": "sim_behav_data.R",
     "type": "r_source",
-    "hash": "2190615603",
+    "hash": "0",
     "contents": "",
     "dirty": false,
     "created": 1623710489277.0,
     "source_on_save": false,
-    "relative_order": 9,
+    "relative_order": 12,
     "properties": {
         "tempName": "Untitled1",
         "cursorPosition": "40,0",
-        "scrollLine": "5"
+        "scrollLine": "0"
     },
     "folds": "",
-    "lastKnownWriteTime": 1624035531,
+    "lastKnownWriteTime": 1624428697,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1624035531910,
+    "last_content_update": 1624428697693,
     "read_only": false,
     "read_only_alternatives": []
 }
