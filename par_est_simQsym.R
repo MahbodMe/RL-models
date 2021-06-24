@@ -53,14 +53,14 @@ rl_sym_negLogLik_DE <- function(par,data,x) {
 
 
 est_DE <- DEoptim(rl_sym_negLogLik_DE,lower=c(0.0001,0.0001),
-                  upper=c(100, 1),data=df_sim_1[1:200,],
+                  upper=c(3, 1),data=df_sim_1[1:200,],
                   control=DEoptim.control(trace=FALSE))
 
 
 
 est_DE$optim$bestmem
 
-rl_sym_negLogLik(c(0.4832322, 0.5417457), df_sim_1)
+rl_sym_negLogLik(c(0.2636515, 0.4683113), df_sim_1)
 
 
 ### Parameter estimation simple asymmetric Q-learning (RPE)
@@ -116,7 +116,7 @@ est <- optim(c(3,.4, .6),rl_asym_negLogLik,data=df_sim_1[1:200,])
 rl_asym_negLogLik(c(0.5141729, 0.1458994, 0.9025990), df_sim_1)
 
 
-rl_sym_negLogLik_DE <- function(par,data,x) {
+rl_asym_negLogLik_DE <- function(par,data,x) {
   negLL <- rl_asym_negLogLik(par,data)
   print("estimating...")
   if(is.na(negLL)) negLL <- Inf
@@ -124,7 +124,7 @@ rl_sym_negLogLik_DE <- function(par,data,x) {
 }
 
 
-est_DE <- DEoptim(rl_sym_negLogLik_DE,lower=c(0.0001,0.0001,0.0001),
+est_DE <- DEoptim(rl_asym_negLogLik_DE,lower=c(0.0001,0.0001,0.0001),
                   upper=c(100, 1, 1),data=df_sim_1[1:200,],
                   control=DEoptim.control(trace=FALSE))
 
@@ -188,7 +188,7 @@ x <- est$par
 rl_asym_negLogLik_2(x, df_sim_1)
 
 
-rl_sym_negLogLik_DE <- function(par,data,x) {
+rl_asym_negLogLik_DE_2 <- function(par,data,x) {
   negLL <- rl_asym_negLogLik_2(par,data)
   print("estimating...")
   if(is.na(negLL)) negLL <- Inf
@@ -196,13 +196,18 @@ rl_sym_negLogLik_DE <- function(par,data,x) {
 }
 
 
-est_DE <- DEoptim(rl_sym_negLogLik_DE,lower=c(0.0001,0.0001,0.0001),
+est_DE <- DEoptim(rl_asym_negLogLik_DE_2,lower=c(0.0001,0.0001,0.0001),
                   upper=c(100, 1, 1),data=df_sim_1[1:200,],
                   control=DEoptim.control(trace=FALSE))
 
 
 
-est_DE$optim$bestmem
+test <- est_DE$optim$bestmem
+
+
+rl_asym_negLogLik_2(test, df_sim_1)
+
+
 
 rl_asym_negLogLik_2(c(0.3989881, 0.4195197, 0.6916996), df_sim_1)
 

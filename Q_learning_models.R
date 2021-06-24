@@ -68,7 +68,6 @@ sim_1 <- rl_simpleQ_symmetric_sim(rewards, .5, 3)
 
 
 
-
 ### Asymmetric Simple Q learning model (RPE)
 
 rl_simpleQ_asymmetric_sim <- function(rewards, positive_alpha, negative_alpha, beta){

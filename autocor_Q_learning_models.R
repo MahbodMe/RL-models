@@ -2,8 +2,9 @@
 
 
 
-
 ### Symmetric Simple Q learning model 
+
+
 
 
 rl_sym_auto_sim <- function(rewards, alpha, beta, phi, tau) {
@@ -70,6 +71,7 @@ rl_sym_auto_sim <- function(rewards, alpha, beta, phi, tau) {
 }
 
 sim_4 <- rl_sym_auto_sim(rewards, .5, 3, .5, .8)
+
 
 
 
@@ -150,7 +152,6 @@ rl_asym_auto_sim <- function(rewards, positive_alpha, negative_alpha,
 
 
 sim_5 <- rl_asym_auto_sim(rewards, .6, .2, 3, .02, 1)
-
 
 
 

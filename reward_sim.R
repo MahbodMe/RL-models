@@ -16,4 +16,3 @@ mu %>%
   gather(key=option,value=mu,-trial) %>%
   ggplot(aes(x=trial,y=mu,colour=option)) + geom_line()
 
-

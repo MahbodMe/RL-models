@@ -58,6 +58,7 @@ rl_ucb_sim_expB <- function(rewards, initial_mean, initial_variance,
     # Updating the variance of the posterior distribution of the mean utility
     arm_variance[t+1, ] <- (1-(discount*kalman_t))*(arm_variance[t, ]+innovation_term)
     
+    print(arm_variance[t+1, ])
     
     
   }
