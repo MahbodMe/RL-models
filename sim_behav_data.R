@@ -1,6 +1,32 @@
 # Generating fake data
 
 
+
+
+# the following function takes an environment (data), a list of models (funs)  
+# and a list of parameters for those models (pars); and generates a data set
+# for each of the models 
+
+sim_behav_data_1 <- function(data, funs, pars, no, envir = parent.frame()){
+  mat <- matrix(0, nrow = length(funs)*nrow(data), ncol = no)
+  for (i in 1:length(funs)){
+    fun <- funs[i]
+    par <- as.numeric(unlist(pars[i]))
+    n_par <- length(par)
+    sim <- do.call(fun, c(list(data), par[1:n_par]))
+    x <- (i-1)*nrow(data) + 1
+    y <- i*nrow(data)
+    mat[x:y ,1] <- rep(i, nrow(data))
+    mat[x:y ,2] <- head(sim$choices, nrow(data))
+    mat[x:y ,3] <- head(sim$agents_rewards ,nrow(data))
+  }
+  mats <- as.data.frame(cbind(1:length(funs)*nrow(data), mat))
+  colnames(mats) <- c("trial", "id", "deck", "payoff")
+  return(data_sim = mats)
+}
+
+
+
 sim_behav_data <- function(data, num_sims, fun, par){
   
   

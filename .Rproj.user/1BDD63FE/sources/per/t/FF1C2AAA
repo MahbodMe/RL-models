@@ -1,0 +1,25 @@
+{
+    "id": "FF1C2AAA",
+    "path": "~/Desktop/Thesis_MSc/Mod/RL_Mod/reward_sim.R",
+    "project_path": "reward_sim.R",
+    "type": "r_source",
+    "hash": "3167666780",
+    "contents": "",
+    "dirty": true,
+    "created": 1624476359154.0,
+    "source_on_save": false,
+    "relative_order": 7,
+    "properties": {
+        "tempName": "Untitled1",
+        "cursorPosition": "20,36",
+        "scrollLine": "0"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1624753360,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1625046784403,
+    "read_only": false,
+    "read_only_alternatives": []
+}

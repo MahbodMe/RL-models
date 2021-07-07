@@ -105,6 +105,5 @@ sim_11 <- rl_ucb_auto_sim2(rewards, 0.0, 1000, 16, 16, 1.96, .1, 1, .2)
 sim_11$choices
 
 
-$total_rewards
 
 

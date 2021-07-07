@@ -1,40 +1,6 @@
 
 
-sim_behav_data_1 <- function(data, funs, pars, envir = parent.frame()){
-  
-  
-  mat <- matrix(0, nrow = length(funs)*nrow(data), ncol = 3)
-  
-  
-  
-  
-  for (i in 1:length(funs)){
-    
-    fun <- funs[i]
-    par <- as.numeric(unlist(pars[i]))
-    print(par[2])
-    
-    n_par <- length(par)
-    print(n_par)
-    print(typeof(par[1]))
-    
-    sim <- do.call(fun, c(list(data), par[1:n_par]))
-    
-    x <- (i-1)*nrow(data) + 1
-    y <- i*nrow(data)
-    
-    
-    mat[x:y ,1] <- rep(i, nrow(data))
-    mat[x:y ,2] <- head(sim$choices, nrow(data))
-    mat[x:y ,3] <- head(sim$agents_rewards ,nrow(data))
-    
-    
-  }
-  mats <- as.data.frame(cbind(1:(200), mat))
-  colnames(mats) <- c("trial", "id", "deck", "payoff")
-  
-  return(data_sim = mats)
-}
+pars2 <- c(par1, par2, par3, par4, par5, par6, par7, par8)
 
 
 x <- sim_behav_data_1(rewards, c("rl_simpleQ_symmetric_sim","rl_simpleQ_asymmetric_sim")
@@ -49,10 +15,10 @@ agent_sims <- c("rl_simpleQ_symmetric_sim", "rl_simpleQ_asymmetric_sim",
                 "rl_asym_auto_sim2", "rl_ucb_sim2", "rl_ucb_auto_sim2")
 
 
-pars <- list(c(.5,.8), c(.3, .6, .7), c(.3, .6, .7), c(.5,.8, .5, .8), 
-             c(.3, .6,.8, .5, .8), c(.3, .6,.8, .5, .8), 
-             c(0.0, 1000, 16, 16, 1.96, .1),
-             c(0.0, 1000, 16, 16, 1.96, .1, .8, .5))
+pars <- list(c(.5, 1), c(.3, .6, 1), c(.3, .6, 1), c(.5,1, .5, .8), 
+             c(.3, .6, 1, .5, .8), c(.3, .6, 1, .5, .8), 
+             c(0.0, 1000, 16, 16, 1.96, 1),
+             c(0.0, 1000, 16, 16, 1.96, 1, .8, .5))
 
 
 
@@ -61,8 +27,13 @@ pars <- list(c(.5,.8), c(.3, .6, .7), c(.3, .6, .7), c(.5,.8, 2, 1),
              c(0.0, 1000, 16, 16, 1.96, .1), 
              c(0.0, 1000, 16, 16, 1.96, .1, 2, 1))
 
+arm
+nt
 
-dat <- sim_behav_data_1(rewards, agent_sims, pars)
+
+dat <- sim_behav_data_1(rewards, agent_sims, pars, arm, nt)
+
+
 
 rl_simpleQ_symmetric_sim(rewards,.5,.8)
 for (i in 1:8){
@@ -101,10 +72,10 @@ find_the_best_pars <- function(para, fun, df, nm, nt){
 }
 
 
-find_the_best_pars(c(.3, .6,.8, .5, .8), rl_asym_auto_sim2, dat, 1, 200)
+find_the_best_pars(c(.3, .6,.8, .5, .8), rl_asym_sim2, df_sim_1, 1, 200)
 
 
-find_the_best_pars(c(.3, .5), rl_sym_negLogLik, dat, 8, 200)
+find_the_best_pars(c(.3, .5), rl_sym_negLogLik, df_sim_1, 8, 200)
 
 
 
@@ -169,8 +140,11 @@ find_the_best_pars <- function(lpar, upar, fun, df, nm, nt){
   return(list( parameter = parameter, df_set = df_set))
 }
 
+find_the_best_pars(c(.001, .001), c(100, 1), rl_sym_negLogLik, df_sim_1, 8, 200)
 
+find_the_best_pars(lpar=c(.001, .) , upar=, fun= , df= , nm= , nt=)
 
+nm <- 8
 
 rl_sym_negLogLik(c(.5,.5), dat)
 
@@ -179,6 +153,8 @@ optim(c(.5,.5,.5), rl_asym_negLogLik, data=dat[1:200,])
 
 nm <- 8
 nt <- 200
+mat <- matrix(NA, 8, 8)
+
 
 par1 <- find_the_best_pars(c(.0001, .0001), c(100, 1), rl_sym_negLogLik_DE, dat, nm, nt)$parameter
 
@@ -274,11 +250,11 @@ for (i in 1 : nm){
   print(value)
   mat[7, i] <- value
 }
-
+ƒ
 
 
 par8 <- find_the_best_pars(c(0,-100,0.00001,0.00001, 0.0001, .1, .1),
-                           c(10,100,nt0,100, 50, 1, 100), kf_sm_auto_negLogLik_DE, 
+                           c(10,100,100,100, 50, 1, 100), kf_sm_auto_negLogLik_DE, 
                            dat, nm, nt)$parameter
 
 for (i in 1 : nm){
@@ -288,7 +264,7 @@ for (i in 1 : nm){
   
   value <- rl_ucb_auto_negLogLik(as.numeric(unlist(par8[i])), data=dat[x:y,]) 
   print(value)
-  mat[nm, i] <- value
+  mat[8, i] <- value
 }
 
 mat <- as.data.frame(mat)
@@ -297,5 +273,9 @@ colnames(mat) <- c("Model 1", "Model 2", "Model 3", "Model 4", "Model 5",
                    "Model 6", "Model 7", "Model nm")
 
 write.csv(mat,"summary1.csv", row.names = FALSE)
+
+
+
+
 
 

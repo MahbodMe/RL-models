@@ -1,5 +1,21 @@
 {
     "debugBreakpointsState": {
-        "breakpoints": []
+        "breakpoints": [
+            {
+                "id": 0,
+                "path": "~/Desktop/Thesis_MSc/Mod/RL_Mod/draft.R",
+                "line_number": 216,
+                "function_steps": "",
+                "function_name": "rl_sym_auto_sim",
+                "state": 2,
+                "editor_state": 2,
+                "editor_line_number": 216,
+                "is_pending_debug_completion": false,
+                "needs_updated_steps": false,
+                "type": 0,
+                "is_package_breakpoint": false,
+                "package_name": ""
+            }
+        ]
     }
 }

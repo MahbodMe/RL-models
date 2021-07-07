@@ -50,11 +50,6 @@ rl_sym_auto_negLogLik <- function(par, data){
   return(negLogLik)
 }
 
-rl_sym_auto_negLogLik(c(0.4831606,  0.5417335, 0.5944809, 1.7919007), df_sim_1)
-
-
-est <- optim(c(3,.5, .4, 1),rl_sym_negLogLik,data=df_sim_1[1:200,])
-est
 
 rl_sym_auto_negLogLik_DE <- function(par,data,x) {
   negLL <- rl_sym_auto_negLogLik(par,data)
@@ -64,16 +59,6 @@ rl_sym_auto_negLogLik_DE <- function(par,data,x) {
 }
 
 
-est_DE <- DEoptim(rl_sym_auto_negLogLik_DE,lower=c(0.0001, 0.0001, .0001, .0001),
-                  upper=c(100, 100, 100 ,1),data=df_sim_1[1:200,],
-                  control=DEoptim.control(trace=FALSE))
-
-
-
-est_DE$optim$bestmem
-rl_sym_auto_negLogLik(c(0.45887852, 0.55840368, 0.49851618, 0.04856763), df_sim_1)
-
-rl_sym_auto_negLogLik(c(0.5956581, 0.4672233, 2.2136534, 0.1127173), df_sim_1)
 
 
 ### Parameter estimation simple asymmetric Q-learning (RPE)
@@ -134,10 +119,6 @@ rl_asym_auto_negLogLik <- function(par, data){
   return(negLogLik)
 }
 
-rl_asym_auto_negLogLik(c(0.4831606,  0.5417335, 0.5944809, 3.0992784), df_sim_1)
-
-
-est <- optim(c(3,.4,.6, .4, 1),rl_asym_negLogLik,data=df_sim_1[1:200,])
 
 
 rl_asym_auto_negLogLik_DE <- function(par,data,x) {
@@ -146,20 +127,6 @@ rl_asym_auto_negLogLik_DE <- function(par,data,x) {
   if(is.na(negLL)) negLL <- Inf
   return(negLL)
 }
-
-
-est_DE <- DEoptim(rl_asym_auto_negLogLik_DE,lower=c(0.0001, 0.0001, .0001,
-                                                    .0001, .0001),
-                  upper=c(100, 1, 1, 100 ,1),data=df_sim_1[1:200,],
-                  control=DEoptim.control(trace=FALSE))
-
-
-
-est_DE$optim$bestmem
-rl_asym_auto_negLogLik(c(0.46789634, 0.53256006, 0.56212901, 0.44132140, 0.04493842), df_sim_1)
-
-test <- est_DE$optim$bestmem
-rl_asym_auto_negLogLik(test, df_sim_1)
 
 
 ### Parameter estimation simple auto + asymmetric Q-learning (reward magnitude)
@@ -214,18 +181,14 @@ rl_asym_auto_negLogLik_2 <- function(par, data){
   
   choice <- data$deck
   reward <- data$payoff
-  ct <- rl_asymmetric_auto_2(choice, reward, 4, 0, p_alpha, n_alpha, tau)$choice_trace*phi
+  ct <- rl_asymmetric_auto_2(choice, reward,  arm, 0, p_alpha, n_alpha, tau)$choice_trace*phi
   
-  qs <- rl_asymmetric_auto_2(choice, reward, 4, 0, p_alpha, n_alpha, tau)$q_value
+  qs <- rl_asymmetric_auto_2(choice, reward,  arm, 0, p_alpha, n_alpha, tau)$q_value
   probs <- softmax_simple_choice_prob_auto(qs, beta, ct)
-  prob_choice <- probs[cbind(4:nrow(data),choice[4:nrow(data)])]
+  prob_choice <- probs[cbind( arm:nrow(data),choice[ arm:nrow(data)])]
   negLogLik <- sum(log(prob_choice))*-1
   return(negLogLik)
 }
-
-
-
-
 
 
 
@@ -235,20 +198,5 @@ rl_asym_auto_negLogLik_DE_2 <- function(par,data,x) {
   if(is.na(negLL)) negLL <- Inf
   return(negLL)
 }
-
-
-est_DE <- DEoptim(rl_asym_auto_negLogLik_DE_2,lower=c(0.0001, 0.0001, .0001,
-                                                    .0001, .1),
-                  upper=c(100, 1, 1, 100 ,1),data=df_sim_1[1:200,],
-                  control=DEoptim.control(trace=FALSE))
-
-
-
-test <- est_DE$optim$bestmem
-
-rl_asym_auto_negLogLik_2(c(0.3989783966, 0.4195172074, 0.6916966498, 0.0001000065, 0.1000114169), df_sim_1)
-
-
-rl_asym_auto_negLogLik_2(test, df_sim_1)
 
 

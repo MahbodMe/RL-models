@@ -1,0 +1,26 @@
+{
+    "id": "37440508",
+    "path": "~/Desktop/Thesis_MSc/Mod/RL_Mod/par_est_simQauto.R",
+    "project_path": "par_est_simQauto.R",
+    "type": "r_source",
+    "hash": "3089691156",
+    "contents": "",
+    "dirty": false,
+    "created": 1624410780358.0,
+    "source_on_save": false,
+    "relative_order": 9,
+    "properties": {
+        "tempName": "Untitled2",
+        "cursorPosition": "194,0",
+        "scrollLine": "161",
+        "docOutlineVisible": "0"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1625654040,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1625654040609,
+    "read_only": false,
+    "read_only_alternatives": []
+}
