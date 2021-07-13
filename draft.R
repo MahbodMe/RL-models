@@ -874,8 +874,8 @@ agent_sims <- c("rl_simpleQ_symmetric_sim", "rl_simpleQ_asymmetric_sim",
                 "rl_ucb_sim2", "rl_ucb_auto_sim2")
 
 
-pars <- list(c(.5,.8), c(.3, .6, .7),  c(.5,.8, .5, .8), c(.3, .6,.8, .5, .8),
-             c(0.0, 1000, 16, 16, 1.96, .1), c(0.0, 1000, 16, 16, 1.96, .1, .8, .5))
+pars <- list(c(.5, 1), c(.3, .6, 1),  c(.5, 1, .5, .8), c(.3, .6, 1, .5, .8),
+             c(0.0, 1000, 16, 16, 1.96, 1), c(0.0, 1000, 16, 16, 1.96, 1, .8, .5))
 
 
 nm <- 6
@@ -888,12 +888,14 @@ colnames(m_values) <- rep(c("sim_model_1", "sim_model_2", "sim_model_4", "sim_mo
                      "sim_model_7", "sim_model_8"), 1)
 
 
-for (k in 1:r){
+for (k in 1:1){
   it <<- rs[k,4]
   arm <<- rs[k,3]
   nt <- rs[k,2]
   rewards <- reward_generator(rs[k,1], rs[k,2], rs[k,3], rs[k,4], rs[k,5], 
                               rs[k,6:(5+arm)])
+  
+  reward_generator(3,30,4,4,4,rep(0,4))
   
   # plot_rewards(rewards)
   # 

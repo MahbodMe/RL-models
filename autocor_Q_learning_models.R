@@ -2,12 +2,10 @@
 
 
 
-### Symmetric Simple Q learning model 
+### Symmetric Simple Q learning model + autocorrlation
 
 
-
-
-rl_sym_auto_sim <- function(rewards, alpha, beta, phi, tau) {
+sym_auto_sim <- function(rewards, beta, alpha, phi, tau) {
   
   n_trials <- nrow(rewards) # Number of Trials 
   n_options <- ncol(rewards)-1 # Number of Options
@@ -28,7 +26,7 @@ rl_sym_auto_sim <- function(rewards, alpha, beta, phi, tau) {
   for (t in 1:n_trials) {
     
     # updating softmax probs. for each arm 
-    softmax_probs <- exp(beta*q_values[t,] + phi*choice_trace[t+1,]) 
+    softmax_probs <- exp(beta*(q_values[t,] + phi*choice_trace[t+1,]))
     
     softmax_probs <- softmax_probs / sum(softmax_probs)
 
@@ -70,15 +68,13 @@ rl_sym_auto_sim <- function(rewards, alpha, beta, phi, tau) {
   
 }
 
-sim_4 <- rl_sym_auto_sim(rewards, .5, 3, .5, .8)
 
 
 
+### Asymmetric Simple Q learning model (RPE) + autocorrlation
 
-### Asymmetric Simple Q learning model (RPE)
-
-rl_asym_auto_sim <- function(rewards, positive_alpha, negative_alpha, 
-                                      beta, phi, tau){
+asym_rpe_auto_sim <- function(rewards, beta, positive_alpha, 
+                              negative_alpha, phi, tau){
   
   n_trials <- nrow(rewards) # Number of Trials 
   n_options <- ncol(rewards)-1 # Number of Options
@@ -100,7 +96,7 @@ rl_asym_auto_sim <- function(rewards, positive_alpha, negative_alpha,
   for (t in 1:n_trials) {
     
     # updating softmax probs. for each arm 
-    softmax_probs <- exp(beta*q_values[t,] + phi*choice_trace[t+1,]) 
+    softmax_probs <- exp(beta*(q_values[t,] + phi*choice_trace[t+1,]))
     
     softmax_probs <- softmax_probs / sum(softmax_probs)
 
@@ -151,14 +147,14 @@ rl_asym_auto_sim <- function(rewards, positive_alpha, negative_alpha,
 
 
 
-sim_5 <- rl_asym_auto_sim(rewards, .6, .2, 3, .02, 1)
+sim_5 <- asym_rpe_auto_sim(rewards,3, .6, .2, .02, 1)
 
 
 
 
-### Asymmetric Simple Q learning model (actual rewards)
+### Asymmetric Simple Q learning model (actual rewards) + autocorrlation
 
-rl_asym_auto_sim2 <- function(rewards, positive_alpha, negative_alpha, 
+asym_reward_auto_sim <- function(rewards, positive_alpha, negative_alpha, 
                                        beta, phi, tau){
   
   n_trials <- nrow(rewards) # Number of Trials 
@@ -176,12 +172,10 @@ rl_asym_auto_sim2 <- function(rewards, positive_alpha, negative_alpha,
   
   # Choice trace for each arm at trial t
   choice_trace <- matrix(0, ncol = n_options, nrow = n_trials + 1)
-  
-  
   for (t in 1:n_trials) {
     
     # updating softmax probs. for each arm 
-    softmax_probs <- exp(beta*q_values[t,] + phi*choice_trace[t+1,]) 
+    softmax_probs <- exp(beta*(q_values[t,] + phi*choice_trace[t+1,]))
     
     softmax_probs <- softmax_probs / sum(softmax_probs)
     
@@ -230,5 +224,3 @@ rl_asym_auto_sim2 <- function(rewards, positive_alpha, negative_alpha,
   # Returning variables of interest 
 }
 
-
-sim_6 <- rl_asym_auto_sim2(rewards, .6, .2, 3, .002, 1)

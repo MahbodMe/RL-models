@@ -1,0 +1,25 @@
+{
+    "id": "E5876546",
+    "path": "~/Desktop/Thesis_MSc/Mod/RL_Mod/autocor_Q_learning_models.R",
+    "project_path": "autocor_Q_learning_models.R",
+    "type": "r_source",
+    "hash": "499863115",
+    "contents": "",
+    "dirty": false,
+    "created": 1623286361310.0,
+    "source_on_save": false,
+    "relative_order": 11,
+    "properties": {
+        "tempName": "Untitled1",
+        "cursorPosition": "192,35",
+        "scrollLine": "188"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1626136413,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1626136413858,
+    "read_only": false,
+    "read_only_alternatives": []
+}

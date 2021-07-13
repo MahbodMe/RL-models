@@ -30,5 +30,5 @@ plot_rewards <- function(data){
 
 
 
-rewards <- reward_generator(3, 200, 2, 4, 4, c(-20, 20))
+rewards <- reward_generator(300, 200, 4, 4, 4, c(-20, 20))
 plot_rewards(rewards)

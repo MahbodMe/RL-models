@@ -16,8 +16,6 @@ rl_symmetric_auto <- function(choice, reward, n_options, q_value_0, alpha, tau
     discount <- rep(0, n_options)
     discount[choice[t]] <- 1
     q_value[t+1, ] <- q_value[t,] + discount*alpha*(reward[t] - q_value[t,])
-    
-    
     choice_trace[t+1, ] <- choice_trace[t,]*(1 - tau) + tau*discount
   } 
   
@@ -44,8 +42,8 @@ rl_sym_auto_negLogLik <- function(par, data){
   ct <- rl_symmetric_auto(choice, reward, 4, 0, alpha, tau)$choice_trace*phi
 
   qs <- rl_symmetric_auto(choice, reward, 4, 0, alpha, tau)$q_value
-  probs <- softmax_simple_choice_prob_auto(qs, beta, ct)
-  prob_choice <- probs[cbind(4:nrow(data),choice[4:nrow(data)])]
+  prob <- softmax_simple_choice_prob_auto(qs, beta, ct)
+  prob_choice <- prob[cbind(1:nrow(data),choice[1:nrow(data)])]
   negLogLik <- sum(log(prob_choice))*-1
   return(negLogLik)
 }
@@ -58,7 +56,7 @@ rl_sym_auto_negLogLik_DE <- function(par,data,x) {
   return(negLL)
 }
 
-
+rl_sym_auto_negLogLik_DE(c(3, .5), dat)
 
 
 ### Parameter estimation simple asymmetric Q-learning (RPE)

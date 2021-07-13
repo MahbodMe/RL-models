@@ -7,107 +7,69 @@
 # and a list of parameters for those models (pars); and generates a data set
 # for each of the models 
 
-sim_behav_data_1 <- function(data, funs, pars, no, envir = parent.frame()){
-  mat <- matrix(0, nrow = length(funs)*nrow(data), ncol = no)
+
+#
+
+sim_behav_data_csv <- function(data, funs, pars, no, nt, envir = parent.frame()){
+  mat <- matrix(0, nrow = length(funs)*nt, ncol = 3)
+  for (i in 1:length(funs)){
+    fun <- funs[i]
+    par <- as.numeric(unlist(pars[i]))
+    sim <- do.call(fun, c(list(data), par[1:length(par)]))
+    x <- (i-1)*nt + 1
+    y <- i*nt
+    mat[x:y ,1] <- rep(i, nt)
+    mat[x:y ,2] <- head(sim$choices, nt)
+    mat[x:y ,3] <- head(sim$agents_rewards, nt)
+  }
+  mats <- as.data.frame(cbind(1:nt, mat))
+  colnames(mats) <- c("trial", "id", "deck", "payoff")
+  return(data_sim = mats)
+}
+
+df_sim <- sim_behav_data_csv(rewards, c("ucb_sim"), list(c(0, 1000, 16,16, 1.96)), 4, 200)
+
+df_sim2 <- sim_behav_data_1(rewards, c("sym_sim"), list(c(1, .5)), 4, 200)
+
+
+
+sim_behav_data_1 <- function(data, funs, pars, no, nt, envir = parent.frame()){
+  mat <- matrix(0, nrow = length(funs)*nt, ncol = 3)
   for (i in 1:length(funs)){
     fun <- funs[i]
     par <- as.numeric(unlist(pars[i]))
     n_par <- length(par)
     sim <- do.call(fun, c(list(data), par[1:n_par]))
-    x <- (i-1)*nrow(data) + 1
-    y <- i*nrow(data)
-    mat[x:y ,1] <- rep(i, nrow(data))
-    mat[x:y ,2] <- head(sim$choices, nrow(data))
-    mat[x:y ,3] <- head(sim$agents_rewards ,nrow(data))
+    print(sim$choices)
+    x <- (i-1)*nt + 1
+    y <- i*nt
+    mat[x:y ,1] <- rep(i, nt)
+    mat[x:y ,2] <- head(sim$choices, nt)
+    mat[x:y ,3] <- head(sim$agents_rewards, nt)
   }
-  mats <- as.data.frame(cbind(1:length(funs)*nrow(data), mat))
+  mats <- as.data.frame(cbind(1:nt, mat))
   colnames(mats) <- c("trial", "id", "deck", "payoff")
   return(data_sim = mats)
 }
 
 
-
-sim_behav_data <- function(data, num_sims, fun, par){
-  
-  
-  mat <- matrix(0, nrow = num_sims*nrow(data), ncol = 3)
-  
-  num_par <- length(formals(fun)) - 1
-  
-  
-  for (i in 1:num_sims){
-    
-    
-    sim <- do.call(fun, c(list(data), par[1:num_par]))
-    print(typeof(par))
-    
-    x <- (i-1)*nrow(data) + 1
-    
-    mat[x:(i*nrow(data)) ,1] <- rep(i, nrow(data))
-    mat[x:(i*nrow(data)) ,2] <- head(sim$choices, -1)
-    mat[x:(i*nrow(data)) ,3] <- head(sim$agents_rewards, -1)
-    
+sim_behav_data_3d <- function(data, funs, pars, no, nt, envir = parent.frame()){
+  df <- array(0, c(nt,4,length(funs)))
+  for (i in 1:length(funs)){
+    fun <- funs[i]
+    print(pars[1])
+    par <- as.numeric(unlist(pars[i]))
+    print(par)
+    sim <- do.call(fun, c(list(data), par[1:length(par)]))
+    df[ ,1 , i] <- rep(1:nt, 1)
+    df[ ,2 ,i] <- rep(i, nt)
+    df[ ,3 ,i]<- head(sim$choices, nt)
+    df[ ,4 ,i] <- head(sim$agents_rewards, nt)
   }
-  mats <- as.data.frame(cbind(1:(200), mat))
-  colnames(mats) <- c("trial", "id", "deck", "payoff")
+  colnames(df) <- c("trial", "id", "deck", "payoff")
   
-  return(data_sim = mats)
+  return(data_sim = df)
 }
 
-df_sim_1 <- sim_behav_data(rewards, 1, rl_simpleQ_symmetric_sim, c(.5,3))
+df_sim <- sim_behav_data(rewards, c("sym_sim"), list(c(1, .5)), 4, 80)
 
-
-sum(df_sim_1$payoff[1:200])
-
-df_sim_2 <- sim_behav_data(rewards, 1, rl_ucb_sim_expB, 
-                           c(0.0, 1000, 16, 16, 1, 1.96))
-
-df_sim_2 <- sim_behav_data(rewards, 10, rl_ucb_sim_expB, 
-                           c(0, 1000, 16, 16, .8, 1.96))
-
-sum(df_sim_2$payoff[1:200])
-
-
-
-sim_behav_data2 <- function(data, num_sims, fun, par){
-
-  mat <- matrix(0, nrow = num_sims*nrow(data), ncol = 3)
-  
-  num_par <- length(formals(fun)) - 1
-  
-  
-  for (i in 1:num_sims){
-    
-    
-    sim <- do.call(fun, c(list(data), par[1:num_par]))
-    
-    
-    x <- (i-1)*nrow(data) + 1
-
-    
-    
-    mat[x:(i*nrow(data)) ,1] <- rep(i, nrow(data))
-    mat[x:(i*nrow(data)) ,2] <- head(sim$choice, nrow(data))
-    mat[x:(i*nrow(data)) ,3] <- head(sim$reward ,nrow(data))
-    
-  }
-  mats <- as.data.frame(cbind(1:(200), mat))
-  colnames(mats) <- c("trial", "id", "deck", "payoff")
-  
-  return(data_sim = mats)
-}
-
-
-df_sim_3 <- sim_behav_data2(rewards[,-1], 1, rl_ucb_sim, c(0, 1000, 16, 16, 1.96))
-
-sum(df_sim_3$payoff[1:200])
-
-
-print(length(mat[x:(1*nrow(data)) ,2]))
-print(length(head(sim$reward ,200)))
-
-
-data <- rewards
-num_sims <- 1 
-fun <- rl_ucb_sim
-par <- c(0, 1000, 16, 16, 1.96)
