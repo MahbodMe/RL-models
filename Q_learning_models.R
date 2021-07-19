@@ -1,4 +1,6 @@
 
+# Q_learning Models for simulation
+
 ### Symmetric Simple Q learning model 
 
 
@@ -193,7 +195,7 @@ asym_reward_sim <- function(rewards, beta, positive_alpha, negative_alpha){
 ### Symmetric Simple Q learning model + autocorrlation
 
 
-sym_auto_sim <- function(rewards, beta, alpha, phi, tau) {
+sym_auto_sim <- function(rewards, beta, alpha, tau, phi) {
   
   n_trials <- nrow(rewards) # Number of Trials 
   n_options <- ncol(rewards)-1 # Number of Options
@@ -262,7 +264,7 @@ sym_auto_sim <- function(rewards, beta, alpha, phi, tau) {
 ### Asymmetric Simple Q learning model (RPE) + autocorrlation
 
 asym_rpe_auto_sim <- function(rewards, beta, positive_alpha, 
-                              negative_alpha, phi, tau){
+                              negative_alpha, tau, phi){
   
   n_trials <- nrow(rewards) # Number of Trials 
   n_options <- ncol(rewards)-1 # Number of Options
@@ -343,7 +345,7 @@ sim_5 <- asym_rpe_auto_sim(rewards,3, .6, .2, .02, 1)
 ### Asymmetric Simple Q learning model (actual rewards) + autocorrlation
 
 asym_reward_auto_sim <- function(rewards, positive_alpha, negative_alpha, 
-                                 beta, phi, tau){
+                                 beta, tau, phi){
   
   n_trials <- nrow(rewards) # Number of Trials 
   n_options <- ncol(rewards)-1 # Number of Options

@@ -1,0 +1,105 @@
+
+
+# Model Comparison 
+
+
+nnew_df <- readRDS("value1.rds")
+
+nnew_df
+### BIC
+
+
+par_num <- c(2,3,3,4,5,5,5,6,6,7,7,8)
+nm_aic <- matrix(NA, 80, 12)
+
+for (x in 1:64){
+  nm_aic[x, ] <- nnew_df[x, ,1]*2 + 2*par_num
+  print(x)
+}
+
+
+min_mod <- rep(0, 12)
+for (x in 1:64){
+  i <- which.min(nm_aic[x, ])
+  min_mod[i] <- min_mod[i] + 1
+}
+  
+  
+min_mod
+
+for (x in 1:r){
+  
+  if (Method == "AIC"){
+    nm_aic <- array(0, c(6,6,r))
+    
+    for (x in 1:r){
+      for (i in 1:6){
+        nm_aic[i, ,x] <- nnew_df[i, ,x]*2 + 2*par_num
+      }
+      print(x)
+    }
+    
+  }
+  for (i in 1:6){
+    m_bic[i, ,x] <- new_df[i, ,x]*2 + log(rs[x,2])*par_num
+  }
+}
+
+
+
+acc_dis <- rep(NA, r)
+
+
+for (x in 1:x){
+  min_mod <- rep(NA, 6)
+  for (i in 1:6){
+    min_mod[i] <- which.min(m_bic[, i, x])
+  }
+  print(min_mod)
+  des <- rep(1:6, 1)
+  if(all(min_mod == des)){
+    print(x)
+    acc_dis[x] <- x
+  }
+}
+
+
+acc_dis <- acc_dis[!is.na(acc_dis)]
+
+acc_dis
+
+
+
+nm_bic <- array(0, c(6,6,r))
+
+for (x in 1:r){
+  for (i in 1:6){
+    nm_bic[i, ,x] <- nnew_df[i, ,x]*2 + log(rs[x,2])*par_num
+  }
+  print(x)
+}
+
+
+nacc_dis <- rep(NA, r)
+
+
+for (x in 1:x){
+  nmin_mod <- rep(NA, 6)
+  for (i in 1:6){
+    nmin_mod[i] <- which.min(nm_bic[, i, x])
+  }
+  print(nmin_mod)
+  des <- rep(1:6, 1)
+  if(all(nmin_mod == des)){
+    print(x)
+    nacc_dis[x] <- x
+  }
+}
+
+
+nacc_dis <- acc_dis[!is.na(acc_dis)]
+
+nacc_dis
+
+
+
