@@ -1381,7 +1381,8 @@ sds_err <- seq(1,8, by=1)
 trials <- seq(30,80, by=10)
 trials <- append(trials, c(150, 200))
 arms <- seq(2,8, by=2)
-seeds <- sample(1:1000, 3)
+# seeds <- sample(1:1000, 3)
+seeds <- c(580, 891, 799)
 m_0 <- c(-4,4,-12,12,-20,20,-60,60)
 
 
@@ -1414,7 +1415,8 @@ for (s in 1:length(seeds)){
 saveRDS(rs, "env.RDS")
 
 
-seeds2 <- sample(1:1000, 5)
+# seeds2 <- sample(1:1000, 5)
+seeds2 <- c(357, 698, 524, 157, 670)
 mat_value <- array(data = NA, c(12, 12, r, length(seeds2)))
 colnames(mat_value) <- c("model_1", "model_2", "model_3", "model_4", "model_5",
                          "model_6", "model_7", "model_8", "model_9", "model_10",
@@ -1619,7 +1621,7 @@ for (s in 1:length(seeds2)){
       mat_value[i, 12, t, s] <- as.vector(unlist(est[i]))
     }
     
-    # saveRDS(mat_value, "mat_value_emp_fit.RDS")
+    saveRDS(mat_value, "mat_emp.RDS")
 
     
   }

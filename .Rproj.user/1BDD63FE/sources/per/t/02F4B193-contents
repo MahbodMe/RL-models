@@ -1,6 +1,3 @@
-
-
-
 ### Required packges 
 
 library(dplyr)
@@ -1351,37 +1348,55 @@ ucb_asym_reward_auto_negLogLik_DE <- function(par,data,x) {
 }
 
 
+
+
+### sample a value from a dist.
+
+sample_beta_dist <- function(l_value, n_sample){
+  mu1 <- mean(l_value)
+  v1 <- sd(l_value)**2
+  a <- (((1-mu1)/v1)-(1/mu1))*(mu1**2)
+  b <- a*((1/mu1)-1)
+  r_v <- rbeta(n_sample, a, b)
+  return(r_v)
+}
+
+sample_log_dist <- function(l_value, n_sample){
+  l_value <- log(l_value)
+  mu1 <- mean(l_value)
+  s1 <- sd(l_value)
+  r_v <- exp(rnorm(n_sample, mu1, s1))
+  return(r_v)
+}
+
+
+sample_norm_dist <- function(l_value, n_sample){
+  mu1 <- mean(l_value)
+  s1 <- sd(l_value)
+  r_v <- rnorm(n_sample, mu1, s1)
+  return(r_v)
+}
+
+
+
+
 # initializing the pars. 
 
 
-index_par_df <- read.csv("pars.csv")
 par_df <- readRDS("para.RDS")
-index_par_df <- subset(index_par_df, index_par_df$ID!=1)
 
-
-par_1 <- subset(index_par_df, index_par_df$Model==1)
-par_2 <- subset(index_par_df, index_par_df$Model==2)
-par_3 <- subset(index_par_df, index_par_df$Model==3)
-par_4 <- subset(index_par_df, index_par_df$Model==4)
-par_5 <- subset(index_par_df, index_par_df$Model==5)
-par_6 <- subset(index_par_df, index_par_df$Model==6)
-par_7 <- subset(index_par_df, index_par_df$Model==7)
-par_8 <- subset(index_par_df, index_par_df$Model==8)
-par_9 <- subset(index_par_df, index_par_df$Model==9)
-par_10 <- subset(index_par_df, index_par_df$Model==10)
-par_11 <- subset(index_par_df, index_par_df$Model==11)
-par_12 <- subset(index_par_df, index_par_df$Model==12)
 
 
 # initializing the env.
 
 
 sds_inv <- seq(2,8, by=1)
-sds_err <- seq(1,8, by=1)
+sds_err <- seq(2,8, by=1)
 trials <- seq(30,80, by=10)
 trials <- append(trials, c(150, 200))
-arms <- seq(2,8, by=2)
-seeds <- sample(1:1000, 3)
+arms <- seq(4,8, by=2)
+# seeds <- sample(1:1000, 3)
+seeds <- c(3)
 m_0 <- c(-4,4,-12,12,-20,20,-60,60)
 
 
@@ -1411,10 +1426,14 @@ for (s in 1:length(seeds)){
 }
 
 
+rewards <- reward_generator(rs[1,1], rs[1,2], rs[1,3], rs[1,4], rs[1,5], 
+                            rs[1,6:(5+arm)])
+plot_rewards(rewards)
+
 saveRDS(rs, "env.RDS")
 
-
-seeds2 <- sample(1:1000, 5)
+# seeds2 <- sample(1:1000, 5)
+seeds2 <- c(419, 158, 940, 272, 813)
 mat_value <- array(data = NA, c(12, 12, r, length(seeds2)))
 colnames(mat_value) <- c("model_1", "model_2", "model_3", "model_4", "model_5",
                          "model_6", "model_7", "model_8", "model_9", "model_10",
@@ -1444,59 +1463,72 @@ for (s in 1:length(seeds2)){
     rewards <- reward_generator(rs[t,1], rs[t,2], rs[t,3], rs[t,4], rs[t,5], 
                                 rs[t,6:(5+arm)])
     
-    par1 <- par_1[sample(nrow(par_1),1),]
-    par1 <- par_df[par1$Model, 1:2, par1$ID, par1$Seed]
+    par1 <- c(sample_log_dist(par_df[1,1,,],1), sample_beta_dist(par_df[1,2,,],1))
     
-    par2 <- par_2[sample(nrow(par_2),1),]
-    par2 <- par_df[par2$Model, 1:3, par2$ID, par2$Seed]  
+    par2 <- c(sample_log_dist(par_df[2,1,,],1), sample_beta_dist(par_df[2,2,,],1),
+              sample_beta_dist(par_df[2,3,,],1))
+
+    par3 <- c(sample_log_dist(par_df[3,1,,],1), sample_beta_dist(par_df[3,2,,],1),
+              sample_beta_dist(par_df[3,3,,],1))
     
-    par3 <- par_3[sample(nrow(par_3),1),]
-    par3 <- par_df[par3$Model, 1:3, par3$ID, par3$Seed]  
+    par4 <- c(sample_log_dist(par_df[4,1,,],1), sample_beta_dist(par_df[4,2,,],1),
+              sample_beta_dist(par_df[4,3,,],1), sample_norm_dist(par_df[4,4,,],1))
     
-    par4 <- par_4[sample(nrow(par_4),1),]
-    par4 <- par_df[par4$Model, 1:4, par4$ID, par4$Seed]  
+    par5 <- c(sample_log_dist(par_df[5,1,,],1), sample_beta_dist(par_df[5,2,,],1),
+              sample_beta_dist(par_df[5,3,,],1), sample_beta_dist(par_df[5,4,,],1),
+              sample_norm_dist(par_df[5,5,,],1))
     
-    par5 <- par_5[sample(nrow(par_5),1),]
-    par5 <- par_df[par5$Model, 1:5, par5$ID, par5$Seed]  
+    par6 <- c(sample_log_dist(par_df[6,1,,],1), sample_beta_dist(par_df[6,2,,],1),
+              sample_beta_dist(par_df[6,3,,],1), sample_beta_dist(par_df[6,4,,],1),
+              sample_norm_dist(par_df[6,5,,],1))
     
-    par6 <- par_6[sample(nrow(par_6),1),]
-    par6 <- par_df[par6$Model, 1:5, par6$ID, par6$Seed]
-    
-    par7 <- par_7[sample(nrow(par_7),1),]
-    par7 <- par_df[par7$Model, 2:5, par7$ID, par7$Seed]  
+    par7 <- c(sample_norm_dist(par_df[7,2,,],1), sample_log_dist(par_df[7,3,,],1), 
+              sample_log_dist(par_df[7,4,,],1),  sample_log_dist(par_df[7,5,,],1))
     par7 <- append(par7, innovation_term, after = 2)
+
     
-    par8 <- par_8[sample(nrow(par_8),1),]
-    par8 <- par_df[par8$Model, 2:6, par8$ID, par8$Seed]  
+    par8 <- c(sample_norm_dist(par_df[8,2,,],1),
+              sample_log_dist(par_df[8,3,,],1), sample_log_dist(par_df[8,4,,],1),
+              sample_log_dist(par_df[8,5,,],1), sample_log_dist(par_df[8,6,,],1))
     par8 <- append(par8, innovation_term, after = 2)
     
-    par9 <- par_9[sample(nrow(par_9),1),]
-    par9 <- par_df[par9$Model, 2:6, par9$ID, par9$Seed]  
-    par9 <- append(par9, innovation_term, after = 2)
+
     
-    par10 <- par_10[sample(nrow(par_10),1),]
-    par10 <- par_df[par10$Model, 2:7, par10$ID, par10$Seed]
+    par9 <- c(sample_norm_dist(par_df[9,2,,],1),
+              sample_log_dist(par_df[9,3,,],1), sample_log_dist(par_df[9,4,,],1),
+              sample_log_dist(par_df[9,5,,],1), sample_log_dist(par_df[9,6,,],1))
+    par9 <- append(par9, innovation_term, after = 2)
+
+    
+    par10 <- c(sample_norm_dist(par_df[10,2,,],1),
+               sample_log_dist(par_df[10,3,,],1), sample_log_dist(par_df[10,4,,],1),
+               sample_log_dist(par_df[10,5,,],1), sample_beta_dist(par_df[10,6,,],1),
+               sample_norm_dist(par_df[10,7,,],1))
     par10 <- append(par10, innovation_term, after = 2)
     
-    par11 <- par_11[sample(nrow(par_11),1),]
-    par11 <- par_df[par11$Model, 2:8, par11$ID, par11$Seed]  
-    par11 <- append(par11, innovation_term, after = 2)
     
-    par12 <- par_12[sample(nrow(par_12),1),]
-    par12 <- par_df[par12$Model, 2:8, par12$ID, par12$Seed]  
+    par11 <- c(sample_norm_dist(par_df[11,2,,],1),
+               sample_log_dist(par_df[11,3,,],1), sample_log_dist(par_df[11,4,,],1),
+               sample_log_dist(par_df[11,5,,],1), sample_log_dist(par_df[11,6,,],1),
+               sample_beta_dist(par_df[11,7,,],1), sample_norm_dist(par_df[11,8,,],1))
+    par11 <- append(par11, innovation_term, after = 2)
+
+    par12 <- c(sample_norm_dist(par_df[12,2,,],1),
+               sample_log_dist(par_df[12,3,,],1), sample_log_dist(par_df[12,4,,],1),
+               sample_log_dist(par_df[12,5,,],1), sample_log_dist(par_df[12,6,,],1),
+               sample_beta_dist(par_df[12,7,,],1), sample_norm_dist(par_df[12,8,,],1))
     par12 <- append(par12, innovation_term, after = 2)
     
     
-    pars <- list(par1, par2, par3, par4, par5, par6, par7, par8, par9, 
-                   par10, par11, par12)
-  
     
-
+    pars <- list(par1, par2, par3, par4, par5, par6, par7, par8, par9, 
+                 par10, par11, par12)
+    
     
     dat <- sim_behav_data_csv(rewards, agent_sims, pars, arm, nt)
-
     
-
+    
+    
     # model 1
     est <- find_the_best_pars(c(.0001, .0001), c(100, 1), sym_negLogLik_DE, dat, nm, nt)$value
     
@@ -1508,7 +1540,7 @@ for (s in 1:length(seeds2)){
     
     # model 2
     est <- find_the_best_pars(c(0.0001,0.0001,0.0001), c(10, 1, 1), asym_rpe_negLogLik_DE, dat, nm, nt)$value
-
+    
     for (i in 1:nm){
       x <- (i-1)*nt + 1
       y <- i*nt
@@ -1560,7 +1592,7 @@ for (s in 1:length(seeds2)){
     
     
     # model 7
-    est <- find_the_best_pars(c(0, -100, 0.00001, 0.0001, 0.0001), c(10 , 100, 1000, 100, 100), ucb_negLogLik_DE, dat, nm, nt)$value
+    est <- find_the_best_pars(c(0, -100, 0.00001, 0.0001, 0.0001), c(10 , 100, 2000, 100, 100), ucb_negLogLik_DE, dat, nm, nt)$value
     
     for (i in 1:nm){
       x <- (i-1)*nt + 1
@@ -1570,7 +1602,7 @@ for (s in 1:length(seeds2)){
     
     
     # model 8
-    est <- find_the_best_pars(c(0, -100, 0.00001, 0.0001, 0.0001, 0.0001), c(10 , 100, 1000, 100, 100, 100), ucb_asym_rpe_negLogLik_DE, dat, nm, nt)$value
+    est <- find_the_best_pars(c(0, -100, 0.0001, 0.0001, 0.0001, 0.0001), c(10 , 100, 2000, 100, 100, 100), ucb_asym_rpe_negLogLik_DE, dat, nm, nt)$value
     
     for (i in 1:nm){
       x <- (i-1)*nt + 1
@@ -1580,7 +1612,7 @@ for (s in 1:length(seeds2)){
     
     
     # model 9
-    est <- find_the_best_pars(c(0, -100, 0.00001, 0.0001, 0.0001, 0.0001), c(10 , 100, 1000, 100, 100, 100), ucb_asym_reward_negLogLik_DE, dat, nm, nt)$value
+    est <- find_the_best_pars(c(0, -100, 0.00001, 0.0001, 0.0001, 0.0001), c(10 , 100, 2000, 100, 100, 100), ucb_asym_reward_negLogLik_DE, dat, nm, nt)$value
     
     for (i in 1:nm){
       x <- (i-1)*nt + 1
@@ -1590,7 +1622,7 @@ for (s in 1:length(seeds2)){
     
     
     # model 10
-    est <- find_the_best_pars(c(0 , -100, 0.00001, 0.00001, 0.0001, 0.0001, -100), c(10 , 100, 1000, 100, 100, 1, 100), ucb_auto_negLogLik_DE, dat, nm, nt)$value
+    est <- find_the_best_pars(c(0 , -100, 0.00001, 0.0001, 0.0001, 0.0001, -100), c(10 , 100, 2000, 100, 100, 1, 100), ucb_auto_negLogLik_DE, dat, nm, nt)$value
     
     for (i in 1:nm){
       x <- (i-1)*nt + 1
@@ -1600,7 +1632,7 @@ for (s in 1:length(seeds2)){
     
     
     # model 11
-    est <- find_the_best_pars(c(0 , -100, 0.00001, 0.00001, 0.0001, 0.0001, 0.0001, -100), c(10 , 100, 1000, 100, 100, 100, 1, 100), ucb_asym_rpe_auto_negLogLik_DE, dat, nm, nt)$value
+    est <- find_the_best_pars(c(0 , -100, 0.00001, 0.00001, 0.0001, 0.0001, 0.0001, -100), c(10 , 100, 2000, 100, 100, 100, 1, 100), ucb_asym_rpe_auto_negLogLik_DE, dat, nm, nt)$value
     
     for (i in 1:nm){
       x <- (i-1)*nt + 1
@@ -1611,7 +1643,7 @@ for (s in 1:length(seeds2)){
     
     
     # model 12
-    est <- find_the_best_pars(c(0 , -100, 0.00001, 0.00001, 0.0001, 0.0001, 0.0001, -100), c(10 , 100, 1000, 100, 100, 100, 1, 100), ucb_asym_reward_auto_negLogLik_DE, dat, nm, nt)$value
+    est <- find_the_best_pars(c(0 , -100, 0.00001, 0.00001, 0.0001, 0.0001, 0.0001, -100), c(10 , 100, 2000, 100, 100, 100, 1, 100), ucb_asym_reward_auto_negLogLik_DE, dat, nm, nt)$value
     
     for (i in 1:nm){
       x <- (i-1)*nt + 1
@@ -1619,11 +1651,19 @@ for (s in 1:length(seeds2)){
       mat_value[i, 12, t, s] <- as.vector(unlist(est[i]))
     }
     
-    # saveRDS(mat_value, "mat_value_emp_fit.RDS")
-
+    saveRDS(mat_value, "mat_dist.RDS")
+    
     
   }
 }
+
+
+
+
+
+
+
+
 
 
 

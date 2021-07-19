@@ -1385,29 +1385,18 @@ sample_norm_dist <- function(l_value, n_sample){
 
 par_df <- readRDS("para.RDS")
 
- <- par_df[1,,,]
-par_2 <- subset(index_par_df, index_par_df$Model==2)
-par_3 <- subset(index_par_df, index_par_df$Model==3)
-par_4 <- subset(index_par_df, index_par_df$Model==4)
-par_5 <- subset(index_par_df, index_par_df$Model==5)
-par_6 <- subset(index_par_df, index_par_df$Model==6)
-par_7 <- subset(index_par_df, index_par_df$Model==7)
-par_8 <- subset(index_par_df, index_par_df$Model==8)
-par_9 <- subset(index_par_df, index_par_df$Model==9)
-par_10 <- subset(index_par_df, index_par_df$Model==10)
-par_11 <- subset(index_par_df, index_par_df$Model==11)
-par_12 <- subset(index_par_df, index_par_df$Model==12)
 
 
 # initializing the env.
 
 
 sds_inv <- seq(2,8, by=1)
-sds_err <- seq(1,8, by=1)
+sds_err <- seq(2,8, by=1)
 trials <- seq(30,80, by=10)
 trials <- append(trials, c(150, 200))
-arms <- seq(2,8, by=2)
-seeds <- sample(1:1000, 3)
+arms <- seq(4,8, by=2)
+# seeds <- sample(1:1000, 3)
+seeds <- c(3)
 m_0 <- c(-4,4,-12,12,-20,20,-60,60)
 
 
@@ -1437,9 +1426,13 @@ for (s in 1:length(seeds)){
 }
 
 
+rewards <- reward_generator(rs[1,1], rs[1,2], rs[1,3], rs[1,4], rs[1,5], 
+                            rs[1,6:(5+arm)])
+plot_rewards(rewards)
+
 saveRDS(rs, "env.RDS")
 
-
+# seeds2 <- sample(1:1000, 5)
 seeds2 <- c(419, 158, 940, 272, 813)
 mat_value <- array(data = NA, c(12, 12, r, length(seeds2)))
 colnames(mat_value) <- c("model_1", "model_2", "model_3", "model_4", "model_5",
@@ -1658,7 +1651,7 @@ for (s in 1:length(seeds2)){
       mat_value[i, 12, t, s] <- as.vector(unlist(est[i]))
     }
     
-    saveRDS(mat_value, "mat10.RDS")
+    saveRDS(mat_value, "mat_dist.RDS")
     
     
   }

@@ -1,4 +1,6 @@
 
+
+
 ### Required packges 
 
 library(dplyr)
@@ -6,7 +8,7 @@ library(tidyr)
 library(ggplot2)
 library(nnet)
 library(DEoptim)
-
+library(abind)
 
 
 
@@ -28,12 +30,7 @@ reward_generator <- function(seed, nt, no, error_term, innovation_term, mu0){
   return(rewards)
 }
 
-Generating fake data
-
-# the following function takes an environment (data), a list of models (funs)  
-# and a list of parameters for those models (pars); and generates a data set
-# for each of the models 
-
+# Generating fake data
 
 sim_behav_data_csv <- function(data, funs, pars, no, nt, envir = parent.frame()){
   mat <- matrix(0, nrow = length(funs)*nt, ncol = 3)
@@ -52,7 +49,6 @@ sim_behav_data_csv <- function(data, funs, pars, no, nt, envir = parent.frame())
   return(data_sim = mats)
 }
 
-
 ### takes a list of function and parameters and data, produces para_est
 
 find_the_best_pars <- function(lpar, upar, fun, df, nm, nt){
@@ -69,7 +65,6 @@ find_the_best_pars <- function(lpar, upar, fun, df, nm, nt){
   }
   return(list(parameter = parameter, value = value))
 }
-
 
 
 
@@ -129,6 +124,7 @@ sym_sim <- function(rewards, beta, alpha) {
               agents_total_rewards = sum(agents_rewards) ))
   
 }
+
 
 
 
@@ -192,6 +188,9 @@ asym_rpe_sim <- function(rewards, beta, positive_alpha, negative_alpha){
               agents_total_rewards = sum(agents_rewards)))
   # Returning variables of interest 
 }
+
+
+
 
 
 
@@ -265,7 +264,7 @@ asym_reward_sim <- function(rewards, beta, positive_alpha, negative_alpha){
 ### Symmetric Simple Q learning model + autocorrlation
 
 
-sym_auto_sim <- function(rewards, beta, alpha, phi, tau) {
+sym_auto_sim <- function(rewards, beta, alpha, tau, phi) {
   
   n_trials <- nrow(rewards) # Number of Trials 
   n_options <- ncol(rewards)-1 # Number of Options
@@ -334,7 +333,7 @@ sym_auto_sim <- function(rewards, beta, alpha, phi, tau) {
 ### Asymmetric Simple Q learning model (RPE) + autocorrlation
 
 asym_rpe_auto_sim <- function(rewards, beta, positive_alpha, 
-                              negative_alpha, phi, tau){
+                              negative_alpha, tau, phi){
   
   n_trials <- nrow(rewards) # Number of Trials 
   n_options <- ncol(rewards)-1 # Number of Options
@@ -407,11 +406,10 @@ asym_rpe_auto_sim <- function(rewards, beta, positive_alpha,
 
 
 
-
 ### Asymmetric Simple Q learning model (actual rewards) + autocorrlation
 
 asym_reward_auto_sim <- function(rewards, positive_alpha, negative_alpha, 
-                                 beta, phi, tau){
+                                 beta, tau, phi){
   
   n_trials <- nrow(rewards) # Number of Trials 
   n_options <- ncol(rewards)-1 # Number of Options
@@ -479,7 +477,6 @@ asym_reward_auto_sim <- function(rewards, positive_alpha, negative_alpha,
               agents_total_rewards = sum(agents_rewards)))
   # Returning variables of interest 
 }
-
 
 
 
@@ -679,7 +676,6 @@ ucb_asym_reward_auto_sim <- function(rewards, m0, v0, sigma_xi_sq,
   return(list(m=m,v=v,choices=choice, agents_rewards=reward, 
               agents_total_rewards = sum(reward)))
 }
-
 
 
 
@@ -957,7 +953,6 @@ asym_reward_auto_negLogLik_DE <- function(par,data,x) {
   if(is.na(negLL)) negLL <- Inf
   return(negLL)
 }
-
 
 
 
@@ -1356,19 +1351,47 @@ ucb_asym_reward_auto_negLogLik_DE <- function(par,data,x) {
 }
 
 
+# initializing the pars. 
 
 
-sds_inv <- seq(0,8, by=1)
+index_par_df <- read.csv("pars.csv")
+par_df <- readRDS("para.RDS")
+index_par_df <- subset(index_par_df, index_par_df$ID!=1)
+
+
+par_1 <- subset(index_par_df, index_par_df$Model==1)
+par_2 <- subset(index_par_df, index_par_df$Model==2)
+par_3 <- subset(index_par_df, index_par_df$Model==3)
+par_4 <- subset(index_par_df, index_par_df$Model==4)
+par_5 <- subset(index_par_df, index_par_df$Model==5)
+par_6 <- subset(index_par_df, index_par_df$Model==6)
+par_7 <- subset(index_par_df, index_par_df$Model==7)
+par_8 <- subset(index_par_df, index_par_df$Model==8)
+par_9 <- subset(index_par_df, index_par_df$Model==9)
+par_10 <- subset(index_par_df, index_par_df$Model==10)
+par_11 <- subset(index_par_df, index_par_df$Model==11)
+par_12 <- subset(index_par_df, index_par_df$Model==12)
+
+
+# initializing the env.
+
+
+sds_inv <- seq(2,8, by=1)
 sds_err <- seq(1,8, by=1)
 trials <- seq(30,80, by=10)
+trials <- append(trials, c(150, 200))
 arms <- seq(2,8, by=2)
-seeds <- sample(1:1000, 3)
+# seeds <- sample(1:1000, 3)
+seeds <- c(580, 891, 799)
 m_0 <- c(-4,4,-12,12,-20,20,-60,60)
+
+
+
 
 r <- length(sds_inv)*length(sds_err)*length(trials)*length(arms)*length(seeds)
 
 rs <- matrix(NA, r, 13)
-colnames(rs) <- c("seed", "trials", "nArms", "innovation", "error", "A1", "A2"
+colnames(rs) <- c("seed", "trials", "nArms", "error", "innovation", "A1", "A2"
                   , "A3", "A4", "A5", "A6", "A7", "A8")
 
 
@@ -1389,137 +1412,225 @@ for (s in 1:length(seeds)){
 }
 
 
+saveRDS(rs, "env.RDS")
 
-emp_par <- readRDS("emp_par.rds")
 
-
-agent_sims <- c("sym_sim", "asym_rpe_sim", "asym_reward_sim", "sym_auto_sim",
-                "asym_rpe_auto_sim", "asym_reward_auto_sim", "ucb_sim",
-                "ucb_asym_rpe_sim", "ucb_asym_reward_sim", "ucb_auto_sim"
-                "ucb_asym_rpe_auto_sim", "ucb_asym_reward_auto_sim")
-
+# seeds2 <- sample(1:1000, 5)
+seeds2 <- c(357, 698, 524, 157, 670)
+mat_value <- array(data = NA, c(12, 12, r, length(seeds2)))
+colnames(mat_value) <- c("model_1", "model_2", "model_3", "model_4", "model_5",
+                         "model_6", "model_7", "model_8", "model_9", "model_10",
+                         "model_11", "model_12")
+rownames(mat_value) <- c("agent_1", "agent_2", "agent_3", "agent_4", "agent_5",
+                         "agent_6", "agent_7", "agent_8", "agent_9", "agent_10",
+                         "agent_11", "agent_12") 
+counter <- 1
 nm <- 12
 
-m_values <- array(0, c(nm,nm,r,))
+agent_sims <- c("sym_sim", "asym_rpe_sim", "asym_reward_sim", "sym_auto_sim", 
+                "asym_rpe_auto_sim", "asym_reward_auto_sim","ucb_sim", 
+                "ucb_asym_rpe_sim", "ucb_asym_reward_sim", "ucb_auto_sim",
+                "ucb_asym_rpe_auto_sim", "ucb_asym_reward_auto_sim")
 
-rownames(m_values) <- rep(c("model_1", "model_2", "model_4", "model_5", "model_7", "model_8"), 1)
-colnames(m_values) <- rep(c("sim_model_1", "sim_model_2", "sim_model_4", "sim_model_5", 
-                            "sim_model_7", "sim_model_8"), 1)
 
+for (s in 1:length(seeds2)){
+  seed <- seeds2[s]
+  for (t in 1:r){
+    print(counter)
+    counter <- counter + 1
+    innovation_term <<- rs[t,5]
+    arm <<- rs[t,3]
+    set.seed(seed)
+    nt <- rs[t,2]
+    
+    rewards <- reward_generator(rs[t,1], rs[t,2], rs[t,3], rs[t,4], rs[t,5], 
+                                rs[t,6:(5+arm)])
+    
+    par1 <- par_1[sample(nrow(par_1),1),]
+    par1 <- par_df[par1$Model, 1:2, par1$ID, par1$Seed]
+    
+    par2 <- par_2[sample(nrow(par_2),1),]
+    par2 <- par_df[par2$Model, 1:3, par2$ID, par2$Seed]  
+    
+    par3 <- par_3[sample(nrow(par_3),1),]
+    par3 <- par_df[par3$Model, 1:3, par3$ID, par3$Seed]  
+    
+    par4 <- par_4[sample(nrow(par_4),1),]
+    par4 <- par_df[par4$Model, 1:4, par4$ID, par4$Seed]  
+    
+    par5 <- par_5[sample(nrow(par_5),1),]
+    par5 <- par_df[par5$Model, 1:5, par5$ID, par5$Seed]  
+    
+    par6 <- par_6[sample(nrow(par_6),1),]
+    par6 <- par_df[par6$Model, 1:5, par6$ID, par6$Seed]
+    
+    par7 <- par_7[sample(nrow(par_7),1),]
+    par7 <- par_df[par7$Model, 2:5, par7$ID, par7$Seed]  
+    par7 <- append(par7, innovation_term, after = 2)
+    
+    par8 <- par_8[sample(nrow(par_8),1),]
+    par8 <- par_df[par8$Model, 2:6, par8$ID, par8$Seed]  
+    par8 <- append(par8, innovation_term, after = 2)
+    
+    par9 <- par_9[sample(nrow(par_9),1),]
+    par9 <- par_df[par9$Model, 2:6, par9$ID, par9$Seed]  
+    par9 <- append(par9, innovation_term, after = 2)
+    
+    par10 <- par_10[sample(nrow(par_10),1),]
+    par10 <- par_df[par10$Model, 2:7, par10$ID, par10$Seed]
+    par10 <- append(par10, innovation_term, after = 2)
+    
+    par11 <- par_11[sample(nrow(par_11),1),]
+    par11 <- par_df[par11$Model, 2:8, par11$ID, par11$Seed]  
+    par11 <- append(par11, innovation_term, after = 2)
+    
+    par12 <- par_12[sample(nrow(par_12),1),]
+    par12 <- par_df[par12$Model, 2:8, par12$ID, par12$Seed]  
+    par12 <- append(par12, innovation_term, after = 2)
+    
+    
+    pars <- list(par1, par2, par3, par4, par5, par6, par7, par8, par9, 
+                   par10, par11, par12)
+  
+    
 
-for (k in 1:1){
-  it <<- rs[k,4]
-  arm <<- rs[k,3]
-  nt <- rs[k,2]
-  rewards <- reward_generator(rs[k,1], rs[k,2], rs[k,3], rs[k,4], rs[k,5], 
-                              rs[k,6:(5+arm)])
-  
-  reward_generator(3,30,4,4,4,rep(0,4))
-  
-  # plot_rewards(rewards)
-  # 
-  # mn_r <- min(rewards[,2:arm+1])
-  # mx_x <- max(rewards[,2:arm+1])
-  # 
-  # rewards[,2:arm+1] <- 2*((rewards[,2:arm+1]-mn_r)/(mx_x-mn_r))-1
-  # plot_rewards(rewards)
-  
-  
-  dat <- sim_behav_data_1(rewards, agent_sims, pars, arm, nt)
-  
-  
-  par1 <- find_the_best_pars(c(.0001, .0001), c(100, 1), 
-                             rl_sym_negLogLik_DE, dat, nm, nt)$parameter
-  
-  for (i in 1:nm){
     
-    x <- (i-1)*nt + 1
-    y <- i*nt
-    value <- rl_sym_negLogLik(as.numeric(unlist(par1[i])), data=dat[x:y,])
+    dat <- sim_behav_data_csv(rewards, agent_sims, pars, arm, nt)
+
     
-    m_values[1, i, k] <- value
+
+    # model 1
+    est <- find_the_best_pars(c(.0001, .0001), c(100, 1), sym_negLogLik_DE, dat, nm, nt)$value
+    
+    for (i in 1:nm){
+      x <- (i-1)*nt + 1
+      y <- i*nt
+      mat_value[i, 1, t, s] <- as.vector(unlist(est[i]))
+    }
+    
+    # model 2
+    est <- find_the_best_pars(c(0.0001,0.0001,0.0001), c(10, 1, 1), asym_rpe_negLogLik_DE, dat, nm, nt)$value
+
+    for (i in 1:nm){
+      x <- (i-1)*nt + 1
+      y <- i*nt
+      mat_value[i, 2, t, s] <- as.vector(unlist(est[i]))
+    }
+    
+    # model 3
+    est <- find_the_best_pars(c(0.0001,0.0001,0.0001), c(10, 1, 1), asym_reward_negLogLik_DE, dat, nm, nt)$value
+    
+    for (i in 1:nm){
+      x <- (i-1)*nt + 1
+      y <- i*nt
+      mat_value[i, 3, t, s] <- as.vector(unlist(est[i]))
+    }
+    
+    
+    
+    # model 4
+    est <- find_the_best_pars(c(0.0001,0.0001,0.0001,-100), c(10, 1, 1,100), sym_auto_negLogLik_DE, dat, nm, nt)$value
+    
+    for (i in 1:nm){
+      x <- (i-1)*nt + 1
+      y <- i*nt
+      mat_value[i, 4, t, s] <- as.vector(unlist(est[i]))
+    }
+    
+    
+    
+    # model 5
+    est <- find_the_best_pars(c(0.0001,0.0001,0.0001, 0.0001, -100), c(10, 1, 1, 1, 100), asym_rpe_auto_negLogLik_DE, dat, nm, nt)$value
+    
+    for (i in 1:nm){
+      x <- (i-1)*nt + 1
+      y <- i*nt
+      mat_value[i, 5, t, s] <- as.vector(unlist(est[i]))
+    }
+    
+    
+    
+    # model 6
+    est <- find_the_best_pars(c(0.0001,0.0001,0.0001, 0.0001, -100), c(10, 1, 1, 1, 100), asym_reward_auto_negLogLik_DE, dat, nm, nt)$value
+    
+    for (i in 1:nm){
+      x <- (i-1)*nt + 1
+      y <- i*nt
+      mat_value[i, 6, t, s] <- as.vector(unlist(est[i]))
+    }
+    
+    
+    
+    # model 7
+    est <- find_the_best_pars(c(0, -100, 0.00001, 0.0001, 0.0001), c(10 , 100, 1000, 100, 100), ucb_negLogLik_DE, dat, nm, nt)$value
+    
+    for (i in 1:nm){
+      x <- (i-1)*nt + 1
+      y <- i*nt
+      mat_value[i, 7, t, s] <- as.vector(unlist(est[i]))
+    }
+    
+    
+    # model 8
+    est <- find_the_best_pars(c(0, -100, 0.00001, 0.0001, 0.0001, 0.0001), c(10 , 100, 1000, 100, 100, 100), ucb_asym_rpe_negLogLik_DE, dat, nm, nt)$value
+    
+    for (i in 1:nm){
+      x <- (i-1)*nt + 1
+      y <- i*nt
+      mat_value[i, 8, t, s] <- as.vector(unlist(est[i]))
+    }
+    
+    
+    # model 9
+    est <- find_the_best_pars(c(0, -100, 0.00001, 0.0001, 0.0001, 0.0001), c(10 , 100, 1000, 100, 100, 100), ucb_asym_reward_negLogLik_DE, dat, nm, nt)$value
+    
+    for (i in 1:nm){
+      x <- (i-1)*nt + 1
+      y <- i*nt
+      mat_value[i, 9, t, s] <- as.vector(unlist(est[i]))
+    }
+    
+    
+    # model 10
+    est <- find_the_best_pars(c(0 , -100, 0.00001, 0.00001, 0.0001, 0.0001, -100), c(10 , 100, 1000, 100, 100, 1, 100), ucb_auto_negLogLik_DE, dat, nm, nt)$value
+    
+    for (i in 1:nm){
+      x <- (i-1)*nt + 1
+      y <- i*nt
+      mat_value[i, 10, t, s] <- as.vector(unlist(est[i]))
+    }
+    
+    
+    # model 11
+    est <- find_the_best_pars(c(0 , -100, 0.00001, 0.00001, 0.0001, 0.0001, 0.0001, -100), c(10 , 100, 1000, 100, 100, 100, 1, 100), ucb_asym_rpe_auto_negLogLik_DE, dat, nm, nt)$value
+    
+    for (i in 1:nm){
+      x <- (i-1)*nt + 1
+      y <- i*nt
+      mat_value[i, 11, t, s] <- as.vector(unlist(est[i]))
+    }
+    
+    
+    
+    # model 12
+    est <- find_the_best_pars(c(0 , -100, 0.00001, 0.00001, 0.0001, 0.0001, 0.0001, -100), c(10 , 100, 1000, 100, 100, 100, 1, 100), ucb_asym_reward_auto_negLogLik_DE, dat, nm, nt)$value
+    
+    for (i in 1:nm){
+      x <- (i-1)*nt + 1
+      y <- i*nt
+      mat_value[i, 12, t, s] <- as.vector(unlist(est[i]))
+    }
+    
+    saveRDS(mat_value, "mat_emp.RDS")
+
+    
   }
-  
-  par2 <- find_the_best_pars(c(0.0001,0.0001,0.0001), c(100, 1, 1), 
-                             rl_asym_negLogLik_DE, dat, nm, nt)$parameter
-  
-  
-  for (i in 1 : nm){
-    
-    x <- (i-1)*nt + 1
-    y <- i*nt
-    
-    value <- rl_asym_negLogLik(as.numeric(unlist(par2[i])), data=dat[x:y,]) 
-    m_values[2, i, k] <- value
-  }
-  
-  
-  
-  par3 <- find_the_best_pars(c(0.0001, 0.0001, .001, .001), c(100, 1, 100 ,1),
-                             rl_sym_auto_negLogLik_DE, dat, nm, nt)$parameter
-  
-  for (i in 1 : nm){
-    
-    x <- (i-1)*nt + 1
-    y <- i*nt
-    
-    value <- rl_sym_auto_negLogLik(as.numeric(unlist(par3[i])), data=dat[x:y,])
-    print(value)
-    m_values[3, i, k] <- value
-  }
-  
-  
-  par4 <- find_the_best_pars(c(0.0001, 0.0001, .0001,.1, .1), 
-                             c(100, 1, 1, 100 ,1), rl_asym_auto_negLogLik_DE, 
-                             dat, nm, nt)$parameter
-  
-  for (i in 1 : nm){
-    
-    x <- (i-1)*nt + 1
-    y <- i*nt
-    
-    value <- rl_asym_auto_negLogLik(as.numeric(unlist(par4[i])), data=dat[x:y,]) 
-    
-    m_values[4, i, k] <- value
-  }
-  
-  
-  par5 <- find_the_best_pars(c(0,-100,0.001,0.0001, 0.001),
-                             c(10,100,1000,100, 50), kf_sm_negLogLik_DE, 
-                             dat, nm, nt)$parameter
-  
-  
-  for (i in 1 : nm){
-    
-    x <- (i-1)*nt + 1
-    y <- i*nt
-    
-    value <- rl_ucb_negLogLik_2(as.numeric(unlist(par5[i])), data=dat[x:y,]) 
-    
-    m_values[5, i, k] <- value
-  }
-  
-  
-  
-  par6 <- find_the_best_pars(c(0,-100,0.00001,0.00001, 0.0001, .1, .1),
-                             c(10,100,1000,100, 50, 1, 100), kf_sm_auto_negLogLik_DE, 
-                             dat, nm, nt)$parameter
-  
-  for (i in 1 : nm){
-    
-    x <- (i-1)*nt + 1
-    y <- i*nt
-    
-    value <- rl_ucb_auto_negLogLik(as.numeric(unlist(par6[i])), data=dat[x:y,]) 
-    m_values[6, i, k] <- value
-  }
-  
-  
 }
 
 
 
-saveRDS(m_values, "scores.rds")
+
+
 
 
 
