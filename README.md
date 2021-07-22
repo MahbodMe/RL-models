@@ -1,7 +1,8 @@
 ## MSc Thesis project https://github.com/MahbodMe/RL_Models
 
+# 12 RL models ]
 
-|				|			|seq2seq	|			|acg		|		|hred-qs	|		|
+|			Models 	|	Learning Rate	| Autocorrelation	|	Decision Rule	|acg		|		|hred-qs	|		|
 |---------------|-----------|-----------|-----------|-----------|-------|-----------|-------|
 |				|ranker		|rouge-l	|bleu		|rouge-l	|bleu	|rouge-l	|bleu 	|
 |robust04		|bm25		|xxxxxx		|xxxxxx		|xxxxxx		|xxxxxx |xxxxxx  	|xxxxxx |
