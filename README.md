@@ -2,6 +2,11 @@
 
 # 12 RL models ]
 
+
+| Models | Learning Rate | Autocorrlation | Decision Rule | Model name in code |
+
+
+
 |			Models 	|	Learning Rate	| Autocorrelation	|	Decision Rule	|acg		|		|hred-qs	|		|
 |---------------|-----------|-----------|-----------|-----------|-------|-----------|-------|
 |				|ranker		|rouge-l	|bleu		|rouge-l	|bleu	|rouge-l	|bleu 	|
