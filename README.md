@@ -18,4 +18,6 @@
 |Model 12| Kalman filter (Asymmetric-Reward) | Choice Trace | UCB + Exploration Bonus | ucb_asym_reward_sim()| 8 |
 
 
+* Agent simulation functions for the 6 Q_learning models (Model 1 to Model 6) are in Q_learning_models.R
+* Agent simulation functions for the 6 Kalman filter models (Model 7 to Model 12) are in Kf_UCB_models.R
 
