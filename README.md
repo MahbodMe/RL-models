@@ -1,4 +1,4 @@
-# MSc Thesis project https://github.com/MahbodMe/RL_Models
+# MSc Thesis project
 
 ### 12 RL models
 
