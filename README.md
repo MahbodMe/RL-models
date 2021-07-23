@@ -154,5 +154,8 @@ sample_norm_dist <- function(l_value, n_sample){
   return(r_v)
 }
 ```
+### Server runs
 
-
+* est_Speekenbrink_Konstantinidis_2015.R: parameter estimation and negloglik value for all four conditions using 5 different seeds
+* est_S&K_best_fitted.R: model recovery using best fitted parameters from S&K (2015) estimates as emprical priors
+* est_S&K_emp_dist.R:  model recovery sampling from distributions from S&K (2015) estimated parameters as emprical priors
