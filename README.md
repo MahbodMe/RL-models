@@ -26,7 +26,7 @@
 * Parameter estimation functions for the 6 Kalman filter models (Model 7 to Model 12) are in par_est_UCB.R
 
 
-\* For the Kalman filter estimation parameters, the innovation_term value is fixed to the environment's actual value *
+\* For the Kalman filter estimation parameters, the innovation_term value is fixed to the environment's actual value.
 
 
 ### Rewards are generated according to the following function
@@ -160,9 +160,10 @@ sample_norm_dist <- function(l_value, n_sample){
 * est_S&K_best_fitted.R: model recovery using best-fitted parameters from S&K (2015) estimates as empirical priors (In-progress).
 * est_S&K_emp_dist.R:  model recovery sampling from distributions from S&K (2015) estimated parameters as empirical priors (In-progress).
 
-\* These are only Templates. The actual runs are in the server folder. I manually divided the run into smaller sets so that I can use more cores.*
+\* These are only Templates. The actual runs are in the server folder. I manually divided the run into smaller sets so that I can use more cores.
 * new_est_S&K_emp_dist.R: is the modified version of the est_S&K_emp_dist.R but using the mclapply() for parllale computing.
-\* I didn't rewrite the code for this one. I only put the main loop in a function which I then pass onto the mclapply(). There are no inputs, and all the needed functions, variables, etc., are assigned globally. I feel like I am cheating, but it works.*
+
+\* I didn't rewrite the code for this one. I only put the main loop in a function which I then pass onto the mclapply(). There are no inputs, and all the needed functions, variables, etc., are assigned globally. I feel like I am cheating, but it works.
 
 
 
