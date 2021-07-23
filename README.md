@@ -1,7 +1,6 @@
-## MSc Thesis project https://github.com/MahbodMe/RL_Models
+# MSc Thesis project https://github.com/MahbodMe/RL_Models
 
-# 12 RL models
-
+### 12 RL models
 
 | Models | Learning Rate | Autocorrlation | Decision Rule | Model name in code | Number of Free Parameters | 
 |---------------|-----------|-----------|-----------|-----------|-----------|
