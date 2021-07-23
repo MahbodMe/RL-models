@@ -49,7 +49,7 @@ reward_generator <- function(seed, nt, no, error_term, innovation_term, mu0){
 ``` 
 
 ### Generating fake data
-Behavioural data is simulated using the following function which takes an environment (data), a list of model's function in string form (funs), a list of parameters for each of the functions in vector form (pars), number of arms (NO), number of trials (NT). 
+Behavioural data is simulated using the following function which takes an environment (data), a list of model's function in string form (funs), a list of parameters for each of the functions in vector form (pars), number of arms (no), number of trials (nt). 
 ``` 
 # CSV form
 sim_behav_data_csv <- function(data, funs, pars, no, nt, envir = parent.frame()){
@@ -89,7 +89,7 @@ sim_behav_data_3d <- function(data, funs, pars, no, nt, envir = parent.frame()){
   return(data_sim = df)
 }
 ```
-The outputs:
+The output:
 * trial: trial number
 * id: the model used with respect to the order they are passed
 * deck: the chosen arm
