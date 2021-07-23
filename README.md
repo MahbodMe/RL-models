@@ -49,7 +49,7 @@ reward_generator <- function(seed, nt, no, error_term, innovation_term, mu0){
 ``` 
 
 ### Generating fake data
-Behavioural data is simulated using the following function which takes an environment (data), a list of model's function in string form (funs), a list of parameters for each of the functions in vector form (pars), number of arms (no), number of trials (nt). 
+Behavioural data is simulated using the following function which takes an environment (data), a list of model's function in string form (funs), a list of parameters for each of the functions in vector form (pars), number of arms (no), and number of trials (nt). 
 ``` 
 # CSV form
 sim_behav_data_csv <- function(data, funs, pars, no, nt, envir = parent.frame()){
@@ -88,6 +88,9 @@ sim_behav_data_3d <- function(data, funs, pars, no, nt, envir = parent.frame()){
   
   return(data_sim = df)
 }
+
+# example 
+df_sim <- sim_behav_data_csv(rewards, c("ucb_sim"), list(c(0, 1000, 16,16, 1.96)), 8, 80)
 ```
 The output:
 * trial: trial number
@@ -95,5 +98,61 @@ The output:
 * deck: the chosen arm
 * payoff: reward recived from the chosen deck at that trial
 
+
+### Parameter estimation function
+The following function takes a list of upper and lower limits (lpar and upar), negloglikDE function (fun), behavioural data (df), number of arms (no), and number of trials (nt).
+```
+find_the_best_pars <- function(lpar, upar, fun, df, nm, nt){
+  value <- rep("NA", nm)
+  parameter <- rep(0, nm)
+  for (i in 1:nm){
+    x <- (i-1)*nt + 1
+    y <- i*nt
+    est_DE <- DEoptim(fun,lower=as.double(lpar),
+                      upper=as.double(upar),data=df[x:y,],
+                      control=DEoptim.control(trace=FALSE))
+    value[i] <- list(est_DE$optim$bestval)
+    parameter[i] <- list(est_DE$optim$bestmem)
+  }
+  return(list(parameter = parameter, value = value))
+}
+
+
+# example:
+
+est <- find_the_best_pars(c(.0001, .0001), c(100, 1), sym_negLogLik_DE, 
+                          df_sim, 1, 80)
+```
+
+### Sampling emprical priors from normal/beta distribution 
+
+```
+# 0 to 1
+sample_beta_dist <- function(l_value, n_sample){
+  mu1 <- mean(l_value)
+  v1 <- sd(l_value)**2
+  a <- (((1-mu1)/v1)-(1/mu1))*(mu1**2)
+  b <- a*((1/mu1)-1)
+  r_v <- rbeta(n_sample, a, b)
+  return(r_v)
+}
+
+# 0 to +inf
+sample_log_dist <- function(l_value, n_sample){
+  l_value <- log(l_value)
+  mu1 <- mean(l_value)
+  s1 <- sd(l_value)
+  r_v <- exp(rnorm(n_sample, mu1, s1))
+  return(r_v)
+}
+
+# -inf to +inf 
+sample_norm_dist <- function(l_value, n_sample){
+  mu1 <- mean(l_value)
+  s1 <- sd(l_value)
+  r_v <- rnorm(n_sample, mu1, s1)
+  return(r_v)
+}
+```
 
 
