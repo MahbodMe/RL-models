@@ -26,7 +26,7 @@
 * Parameter estimation functions for the 6 Kalman filter models (Model 7 to Model 12) are in par_est_UCB.R
 
 
-\* For the Kalman filter estimation parameters, the innovation_term value is fixed to the environment's true value *
+\* For the Kalman filter estimation parameters, the innovation_term value is fixed to the environment's actual value *
 
 
 ### Rewards are generated according to the following function
@@ -49,7 +49,7 @@ reward_generator <- function(seed, nt, no, error_term, innovation_term, mu0){
 ``` 
 
 ### Generating fake data
-Behavioural data is simulated using the following function which takes an environment (data), a list of model's function in string form (funs), a list of parameters for each of the functions in vector form (pars), number of arms (no), and number of trials (nt). 
+Behavioural data is simulated using the following function, which takes an environment (data), a list of model's functions in string form (funs), a list of parameters for each of the functions in vector form (pars), number of arms (no), and number of trials (nt). 
 ``` 
 # CSV form
 sim_behav_data_csv <- function(data, funs, pars, no, nt, envir = parent.frame()){
@@ -94,9 +94,9 @@ df_sim <- sim_behav_data_csv(rewards, c("ucb_sim"), list(c(0, 1000, 16,16, 1.96)
 ```
 The output:
 * trial: trial number
-* id: the model used with respect to the order they are passed
+* id: the model used with respect to the order they were passed
 * deck: the chosen arm
-* payoff: reward recived from the chosen deck at that trial
+* payoff: reward received from the chosen deck at that trial
 
 
 ### Parameter estimation function
@@ -124,7 +124,7 @@ est <- find_the_best_pars(c(.0001, .0001), c(100, 1), sym_negLogLik_DE,
                           df_sim, 1, 80)
 ```
 
-### Sampling emprical priors from normal/beta distribution 
+### Sampling empirical priors from normal/beta distribution 
 
 ```
 # 0 to 1
@@ -156,6 +156,31 @@ sample_norm_dist <- function(l_value, n_sample){
 ```
 ### Server runs
 
-* est_Speekenbrink_Konstantinidis_2015.R: parameter estimation and negloglik value for all four conditions using 5 different seeds
-* est_S&K_best_fitted.R: model recovery using best fitted parameters from S&K (2015) estimates as emprical priors
-* est_S&K_emp_dist.R:  model recovery sampling from distributions from S&K (2015) estimated parameters as emprical priors
+* est_Speekenbrink_Konstantinidis_2015.R: parameter estimation and negloglik value for all four conditions using 5 different seeds (Results obtained).
+* est_S&K_best_fitted.R: model recovery using best-fitted parameters from S&K (2015) estimates as empirical priors (In-progress).
+* est_S&K_emp_dist.R:  model recovery sampling from distributions from S&K (2015) estimated parameters as empirical priors (In-progress).
+
+\* These are only Templates. The actual runs are in the server folder. I manually divided the run into smaller sets so that I can use more cores.*
+* new_est_S&K_emp_dist.R: is the modified version of the est_S&K_emp_dist.R but using the mclapply() for parllale computing.
+\* I didn't rewrite the code for this one. I only put the main loop in a function which I then pass onto the mclapply(). There are no inputs, and all the needed functions, variables, etc., are assigned globally. I feel like I am cheating, but it works.*
+
+
+
+# How I calculated the AIC and BIC for Speekenbrink & Konstantinidis (2015)
+
+```
+m_df <- readRDS("S&K_2015_NLL_values.rds") # Negative Log-liklihood values
+par_num <- c(2,3,3,4,5,5,5,6,6,7,7,8)
+
+m_bic <- array(0, c(80,12,5))
+m_aic <- array(0, c(80,12,5))
+
+for (s in 1:5){
+  for (id in 1:80){
+    m_aic[id, ,s] <- m_df[id, ,s]*2 + 2*par_num
+    m_bic[a, ,i] <- m_df[a,,i]*2 + log(80)*par_num    
+  }
+}
+```
+
+
