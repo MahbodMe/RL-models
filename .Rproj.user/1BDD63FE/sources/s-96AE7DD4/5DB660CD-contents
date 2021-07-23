@@ -1,0 +1,54 @@
+rewards <- reward_generator(rs[1,1], rs[1,2], rs[1,3], rs[1,4], rs[1,5], 
+                            rs[1,6:(5+arm)])
+
+plot_reward(rewards)
+
+arm <- 
+
+fun <- sym_negLogLik_DE
+df <- dat
+
+find_the_best_pars2 <- function(var){
+  lpar <- as.double(unlist(var[1]))
+  upar <- as.double(unlist(var[2]))
+  nm <- as.double(unlist(var[4]))
+  nt <-as.double(unlist(var[5]))
+  value <- rep("NA", nm)
+  parameter <- rep(0, nm)
+  for (i in 1:nm){
+    x <- (i-1)*nt + 1
+    y <- i*nt
+    est_DE <- DEoptim(fun,lower=as.double(lpar),
+                      upper=as.double(upar),data=df[x:y,],
+                      control=DEoptim.control(trace=FALSE))
+    value[i] <- list(est_DE$optim$bestval)
+    parameter[i] <- list(est_DE$optim$bestmem)
+  }
+  return(list(parameter = parameter, value = value))
+}
+
+arm <<-8
+mclapply(prescheudle = Falese)
+
+find_the_best_pars <- function(lpar, upar, fun, df, nm, nt){
+  print(typeof(lpar))
+  print(typeof(upar))
+  print(typeof(data))
+  print(typeof(nm))
+  print(typeof(nt))
+  value <- rep("NA", nm)
+  parameter <- rep(0, nm)
+  for (i in 1:nm){
+    x <- (i-1)*nt + 1
+    y <- i*nt
+    est_DE <- DEoptim(fun,lower=as.double(lpar),
+                      upper=as.double(upar),data=df[x:y,],
+                      control=DEoptim.control(trace=FALSE))
+    value[i] <- list(est_DE$optim$bestval)
+    parameter[i] <- list(est_DE$optim$bestmem)
+  }
+  return(list(parameter = parameter, value = value))
+}
+
+est <- find_the_best_pars(c(.0001, .0001), c(100, 1), sym_negLogLik_DE, dat, nm, nt)
+est <- find_the_best_pars2(list(c(.0001, .0001), c(100, 1), nm, nt))$value

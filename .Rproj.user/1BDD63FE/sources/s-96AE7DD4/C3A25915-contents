@@ -1,0 +1,135 @@
+
+
+
+
+
+
+
+
+
+test <- function()
+˜
+
+
+library(parallel)
+
+mod_id <- function(X){
+  print("hello world")
+  y <- X[1] + 2
+  z <- X[1] + 3
+  return(list(y,z))
+}
+
+x <- c(4, 5)
+mclapply(x, mod_id, mc.preschedule = FALSE, mc.cores = getOption("mc.cores", 2L))
+
+
+
+
+
+for (s in 1:length(seeds2)){
+  seed <- seeds2[s]
+  for (t in 1:r){
+    innovation_term <<- rs[t,5]
+    arm <<- rs[t,3]
+    set.seed(seed)
+    nt <- rs[t,2]
+    
+    rewards <- reward_generator(rs[t,1], rs[t,2], rs[t,3], rs[t,4], rs[t,5], 
+                                rs[t,6:(5+arm)])
+    
+    
+    par1 <- par_1[sample(nrow(par_1),1),]
+    par1 <- par_df[par1$Model, 1:2, par1$ID, par1$Seed]
+    
+
+    par2 <- par_2[sample(nrow(par_2),1),]
+    par2 <- par_df[par2$Model, 1:3, par2$ID, par2$Seed]  
+    
+    
+
+    par3 <- par_3[sample(nrow(par_3),1),]
+    par3 <- par_df[par3$Model, 1:3, par3$ID, par3$Seed]  
+    
+    
+
+    par4 <- par_4[sample(nrow(par_4),1),]
+    par4 <- par_df[par4$Model, 1:4, par4$ID, par4$Seed]  
+    
+
+    par5 <- par_5[sample(nrow(par_5),1),]
+    par5 <- par_df[par5$Model, 1:5, par5$ID, par5$Seed]  
+    
+    
+
+    par6 <- par_6[sample(nrow(par_6),1),]
+    par6 <- par_df[par6$Model, 1:5, par6$ID, par6$Seed]
+    
+
+    par7 <- par_7[sample(nrow(par_7),1),]
+    par7 <- par_df[par7$Model, 2:5, par7$ID, par7$Seed]  
+    par7 <- append(par7, innovation_term, after = 2)
+    
+
+    par8 <- par_8[sample(nrow(par_8),1),]
+    par8 <- par_df[par8$Model, 2:6, par8$ID, par8$Seed]  
+    par8 <- append(par8, innovation_term, after = 2)
+    
+
+    par9 <- par_9[sample(nrow(par_9),1),]
+    par9 <- par_df[par9$Model, 2:6, par9$ID, par9$Seed]  
+    par9 <- append(par9, innovation_term, after = 2)
+    
+
+    par10 <- par_10[sample(nrow(par_10),1),]
+    par10 <- par_df[par10$Model, 2:7, par10$ID, par10$Seed]
+    par10 <- append(par10, innovation_term, after = 2)
+    
+    
+    par11 <- par_11[sample(nrow(par_11),1),]
+    par11 <- par_df[par11$Model, 2:8, par11$ID, par11$Seed]  
+    par11 <- append(par11, innovation_term, after = 2)
+    
+
+    par12 <- par_12[sample(nrow(par_12),1),]
+    par12 <- par_df[par12$Model, 2:8, par12$ID, par12$Seed]  
+    par12 <- append(par12, innovation_term, after = 2)
+    
+
+    pars <- list(par1, par2, par3, par4, par5, par6, par7, par8, par9, 
+                 par10, par11, par12)
+    
+    
+    dat <- sim_behav_data_csv(rewards, agent_sims, pars, arm, nt)
+  }
+}
+
+
+asym_reward_auto_sim(rewards, 9.9782606157, 0.0001000369, 0.9876965385, 0.9998412095, 0.0720077627)
+
+
+
+sim_behav_data_csv(rewards, "asym_reward_auto_sim", 
+                   list(c(9.9782606157, 0.0001000369, 0.9876965385, 0.9998412095, 0.0720077627),c(1,2)),
+                   8, 80)
+
+
+sim_behav_data_csv <- function(data, funs, pars, no, nt, envir = parent.frame()){
+  mat <- matrix(0, nrow = length(funs)*nt, ncol = 3)
+  for (i in 1:length(funs)){
+    print(i)
+    fun <- funs[i]
+    print(fun)
+    par <- as.numeric(unlist(pars[i]))
+    print(par)
+    sim <- do.call(fun, c(list(data), par[1:length(par)]))
+    x <- (i-1)*nt + 1
+    y <- i*nt
+    mat[x:y ,1] <- rep(i, nt)
+    mat[x:y ,2] <- head(sim$choices, nt)
+    mat[x:y ,3] <- head(sim$agents_rewards, nt)
+  }
+  mats <- as.data.frame(cbind(1:nt, mat))
+  colnames(mats) <- c("trial", "id", "deck", "payoff")
+  return(data_sim = mats)
+}
