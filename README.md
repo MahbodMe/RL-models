@@ -21,3 +21,8 @@
 * Agent simulation functions for the 6 Q_learning models (Model 1 to Model 6) are in Q_learning_models.R
 * Agent simulation functions for the 6 Kalman filter models (Model 7 to Model 12) are in Kf_UCB_models.R
 
+#### Parameter estimation is conducted using the DEoptim package 
+* Parameter estimation functions for the 6 Q_learning models (Model 1 to Model 6) are in par_est_Q_learning.R
+* Parameter estimation functions for the 6 Kalman filter models (Model 7 to Model 12) are in par_est_UCB.R
+
+
