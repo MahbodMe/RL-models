@@ -24,6 +24,7 @@
 #### Parameter estimation is conducted using the DEoptim package 
 * Parameter estimation functions for the 6 Q_learning models (Model 1 to Model 6) are in par_est_Q_learning.R
 * Parameter estimation functions for the 6 Kalman filter models (Model 7 to Model 12) are in par_est_UCB.R
+
 \* For the kalman filter estimation parameters, the innovation_term*
 
 $$q_\pi(s,a) = \mathbb{E}_\pi[G_t|s_t = s, a_t = a] = \mathbb{E}_\pi\left[\sum_{k=0}^\infty \gamma^k r_{t+k+1}|s_t = s, a_t=a\right]$$ 
