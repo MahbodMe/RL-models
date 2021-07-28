@@ -77,7 +77,7 @@ sim_behav_data_csv <- function(data, funs, pars, no, nt, envir = parent.frame())
   return(data_sim = mats)
 }
 
-df_sim <- sim_behav_data_csv(rw, c("ucb_sim"), list(c(0, 1000, 16,16, 1.96)), 4, 200)
+df_sim <- sim_behav_data_csv(rewards, c("ucb_sim"), list(c(0, 1000, 16,16, 1.96)), 8, 80)
 
 
 sim_behav_data_3d <- function(data, funs, pars, no, nt, envir = parent.frame()){
@@ -126,8 +126,8 @@ find_the_best_pars <- function(lpar, upar, fun, df, nm, nt){
 
 # example:
 
-est <- find_the_best_pars(c(.0001, .0001), c(100, 1), sym_negLogLik_DE, df_sim,
-                          1, 80)
+est <- find_the_best_pars(c(.0001, .0001), c(100, 1), sym_negLogLik_DE, 
+                          df_sim, 1, 80)
 
 sym_negLogLik(as.numeric(unlist(est$parameter)), df_sim)
 

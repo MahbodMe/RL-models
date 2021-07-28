@@ -301,7 +301,7 @@ sym_auto_sim <- function(rewards, beta, alpha, tau, phi) {
       choices[t] <- select_randomly
     }
     
-    agents_rewards[t] <- rewards[t, choices[t]+1] # Agents reward at trial t
+    agents_rewards[t] <- 6 # Agents reward at trial t
     
     
     # setting discount value, since the forgetting rate is 0, 
@@ -1457,9 +1457,13 @@ mod_id <- function(X){
       arm <<- rs[t,3]
       set.seed(seed)
       nt <- rs[t,2]
+      
+      t <- 536
 
       rewards <- reward_generator(rs[t,1], rs[t,2], rs[t,3], rs[t,4], rs[t,5], 
                                   rs[t,6:(5+rs[t,3])])
+      
+      plot_rewards(rewards)
       
       par1 <- c(sample_log_dist(par_df[1,1,,],1), sample_beta_dist(par_df[1,2,,],1))
       
@@ -1659,5 +1663,5 @@ mod_id <- function(X){
 test <- NA
 mclapply(test, mod_id, mc.preschedule = FALSE, mc.cores = 40)
 
-
+print(r)
 

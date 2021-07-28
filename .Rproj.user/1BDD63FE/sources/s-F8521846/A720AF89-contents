@@ -1,0 +1,5 @@
+library(R.matlab)
+
+
+test <- readMat("untitled//exp1_1.mat")
+                

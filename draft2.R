@@ -1,6 +1,10 @@
 
 
 
+
+# Collecting best-fitted parameters from Maarten's 2015 
+
+
 m1 <- readRDS("value1.rds")
 m2 <- readRDS("value2.rds")
 m3 <- readRDS("value3.rds")
@@ -13,6 +17,8 @@ p2 <- readRDS("par2.rds")
 p3 <- readRDS("par3.rds")
 p4 <- readRDS("par4.rds")
 p5 <- readRDS("par5.rds")
+
+readRDS("S&K_2015_NLL_values.rds")
 
 
 
@@ -229,15 +235,6 @@ nrow(pars)
 
 write.csv(pars, "pars.csv")
 saveRDS(p_df,"para.RDS")
-
-
-
-
-
-
-
-
-
 
 
 

@@ -1,0 +1,25 @@
+{
+    "id": "9047B3C1",
+    "path": "~/Desktop/Thesis_MSc/Mod/RL_Mod/par_est_dist_random_walk.R",
+    "project_path": "par_est_dist_random_walk.R",
+    "type": "r_source",
+    "hash": "272283358",
+    "contents": "",
+    "dirty": false,
+    "created": 1627329545893.0,
+    "source_on_save": false,
+    "relative_order": 12,
+    "properties": {
+        "tempName": "Untitled3",
+        "cursorPosition": "881,0",
+        "scrollLine": "857"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1627475298,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1627475298852,
+    "read_only": false,
+    "read_only_alternatives": []
+}
