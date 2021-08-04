@@ -167,8 +167,8 @@ sample_norm_dist <- function(l_value, n_sample){
 # How I calculated the AIC and BIC for Speekenbrink & Konstantinidis (2015)
 
 ```
-m_df <- readRDS("S&K_2015_NLL_values.rds") # Negative Log-liklihood values
-par_num <- c(2,3,3,4,5,5,5,6,6,7,7,8)
+m_df <- readRDS("IGT_values.RDS")# Negative Log-likelihood values
+par_num <- c(2,3,3,4,5,5,5,6,6,7,8,8)
 
 m_bic <- array(0, c(80,12,5))
 m_aic <- array(0, c(80,12,5))
