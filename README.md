@@ -176,7 +176,7 @@ m_aic <- array(0, c(80,12,5))
 for (s in 1:5){
   for (id in 1:80){
     m_aic[id, ,s] <- m_df[id, ,s]*2 + 2*par_num
-    m_bic[a, ,i] <- m_df[a,,i]*2 + log(80)*par_num    
+    m_bic[id, ,i] <- m_df[id,,i]*2 + log(80)*par_num    
   }
 }
 ```
