@@ -1,0 +1,80 @@
+# model 1
+est <- find_the_best_pars(c(.0001, .0001), c(100, 1), sym_negLogLik_DE, dat, 1, nt)
+par <- est$parameter
+mat_value[t, 1, s] <- as.vector(unlist(est$value))
+mat_par[1,1:length(as.vector(unlist(par))),t,s] <- as.vector(unlist(par[1:length(as.vector(unlist(par)))]))
+
+
+# model 2
+est <- find_the_best_pars(c(0.0001,0.0001,0.0001), c(10, 1, 1), asym_rpe_negLogLik_DE, dat, 1, nt)
+par <- est$parameter
+mat_value[t, 2, s] <- as.vector(unlist(est$value))
+mat_par[2,1:length(as.vector(unlist(par))),t,s] <- as.vector(unlist(par[1:length(as.vector(unlist(par)))]))
+
+# model 3
+est <- find_the_best_pars(c(0.0001,0.0001,0.0001), c(10, 1, 1), asym_reward_negLogLik_DE, dat, nm, nt)
+par <- est$parameter
+mat_value[t, 3, s] <- as.vector(unlist(est$value))
+mat_par[3,1:length(as.vector(unlist(par))),t,s] <- as.vector(unlist(par[1:length(as.vector(unlist(par)))]))
+
+
+# model 4
+est <- find_the_best_pars(c(0.0001,0.0001,0.0001,-100), c(10, 1, 1,100), sym_auto_negLogLik_DE, dat, nm, nt)
+par <- est$parameter
+mat_value[t, 4, s] <- as.vector(unlist(est$value))
+mat_par[4,1:length(as.vector(unlist(par))),t,s] <- as.vector(unlist(par[1:length(as.vector(unlist(par)))]))
+
+
+# model 5
+est <- find_the_best_pars(c(0.0001,0.0001,0.0001, 0.0001, -100), c(10, 1, 1, 1, 100), asym_rpe_auto_negLogLik_DE, dat, nm, nt)
+par <- est$parameter
+mat_value[t, 5, s] <- as.vector(unlist(est$value))
+mat_par[5,1:length(as.vector(unlist(par))),t,s] <- as.vector(unlist(par[1:length(as.vector(unlist(par)))]))  
+
+
+# model 6
+est <- find_the_best_pars(c(0.0001,0.0001,0.0001, 0.0001, -100), c(10, 1, 1, 1, 100), asym_reward_auto_negLogLik_DE, dat, nm, nt)
+par <- est$parameter
+mat_value[t, 6, s] <- as.vector(unlist(est$value))
+mat_par[6,1:length(as.vector(unlist(par))),t,s] <- as.vector(unlist(par[1:length(as.vector(unlist(par)))]))     
+
+
+# model 7
+est <- find_the_best_pars(c(0, -100, 0.00001, 0.0001, 0.0001), c(10 , 100, 1000, 100, 100), ucb_negLogLik_DE, dat, nm, nt)
+par <- est$parameter
+mat_value[t, 7, s] <- as.vector(unlist(est$value))
+mat_par[7,1:length(as.vector(unlist(par))),t,s] <- as.vector(unlist(par[1:length(as.vector(unlist(par)))]))
+
+
+# model 8
+est <- find_the_best_pars(c(0, -100, 0.00001, 0.0001, 0.0001, 0.0001), c(10 , 100, 1000, 100, 100, 100), ucb_asym_rpe_negLogLik_DE, dat, nm, nt)
+par <- est$parameter
+mat_value[t, 8, s] <- as.vector(unlist(est$value))
+mat_par[8,1:length(as.vector(unlist(par))),t,s] <- as.vector(unlist(par[1:length(as.vector(unlist(par)))]))     
+
+# model 9
+est <- find_the_best_pars(c(0, -100, 0.00001, 0.0001, 0.0001, 0.0001), c(10 , 100, 1000, 100, 100, 100), ucb_asym_reward_negLogLik_DE, dat, nm, nt)
+par <- est$parameter
+mat_value[t, 9, s] <- as.vector(unlist(est$value))
+mat_par[9,1:length(as.vector(unlist(par))),t,s] <- as.vector(unlist(par[1:length(as.vector(unlist(par)))]))              
+
+
+# model 10
+est <- find_the_best_pars(c(0 , -100, 0.00001, 0.00001, 0.0001, 0.0001, -100), c(10 , 100, 1000, 100, 100, 1, 100), ucb_auto_negLogLik_DE, dat, nm, nt)
+par <- est$parameter
+mat_value[t, 10, s] <- as.vector(unlist(est$value))
+mat_par[10,1:length(as.vector(unlist(par))),t,s] <- as.vector(unlist(par[1:length(as.vector(unlist(par)))]))
+
+
+# model 11
+est <- find_the_best_pars(c(0 , -100, 0.00001, 0.00001, 0.0001, 0.0001, 0.0001, -100), c(10 , 100, 1000, 100, 100, 100, 1, 100), ucb_asym_rpe_auto_negLogLik_DE, dat, nm, nt)
+par <- est$parameter
+mat_value[t, 11, s] <- as.vector(unlist(est$value))
+mat_par[11,1:length(as.vector(unlist(par))),t,s] <- as.vector(unlist(par[1:length(as.vector(unlist(par)))]))
+
+
+# model 12
+est <- find_the_best_pars(c(0 , -100, 0.00001, 0.00001, 0.0001, 0.0001, 0.0001, -100), c(10 , 100, 1000, 100, 100, 100, 1, 100), ucb_asym_reward_auto_negLogLik_DE, dat, nm, nt)
+par <- est$parameter
+mat_value[t, 12, s] <- as.vector(unlist(est$value))
+mat_par[12,1:length(as.vector(unlist(par))),t,s] <- as.vector(unlist(par[1:length(as.vector(unlist(par)))]))

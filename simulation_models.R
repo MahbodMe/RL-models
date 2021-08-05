@@ -266,7 +266,8 @@ sym_auto_sim <- function(rewards, par) {
     #   choices[t] <- select_randomly
     # }
     
-    agents_rewards[t] <- 6 # Agents reward at trial t
+    
+    agents_rewards[t] <- rewards[t, choices[t]+1] # Agents reward at trial t
     
     
     # setting discount value, since the forgetting rate is 0, 

@@ -32,7 +32,7 @@ reward_generator <- function(seed, nt, no, error_term, innovation_term, mu0){
 
 
 # Example:
-rw <- reward_generator(3, 200, 4, 16, 16, c(-4, 4, -12, 12))
+# rw <- reward_generator(3, 200, 4, 16, 16, c(-4, 4, -12, 12))
 
 ### the following function plots rewards 
 
@@ -49,7 +49,7 @@ plot_rewards <- function(data){
 
 
 
-plot_rewards(rw)
+# plot_rewards(rw)
 
 
 
@@ -77,7 +77,7 @@ sim_behav_data_csv <- function(data, funs, pars, no, nt, envir = parent.frame())
   return(data_sim = mats)
 }
 
-df_sim <- sim_behav_data_csv(rewards, c("ucb_sim"), list(c(0, 1000, 16,16, 1.96)), 8, 80)
+# df_sim <- sim_behav_data_csv(rewards, c("ucb_sim"), list(c(0, 1000, 16,16, 1.96)), 8, 80)
 
 
 sim_behav_data_3d <- function(data, funs, pars, no, nt, envir = parent.frame()){
@@ -101,7 +101,7 @@ sim_behav_data_3d <- function(data, funs, pars, no, nt, envir = parent.frame()){
 
 # example:
 
-df_sim <- sim_behav_data_3d(rewards, c("sym_sim"), list(c(1, .5)), 4, 80)
+# df_sim <- sim_behav_data_3d(rewards, c("sym_sim"), list(c(1, .5)), 4, 80)
 
 
 
@@ -126,43 +126,43 @@ find_the_best_pars <- function(lpar, upar, fun, df, nm, nt){
 
 # example:
 
-est <- find_the_best_pars(c(.0001, .0001), c(100, 1), sym_negLogLik_DE, 
-                          df_sim, 1, 80)
+# est <- find_the_best_pars(c(.0001, .0001), c(100, 1), sym_negLogLik_DE, 
+                          # df_sim, 1, 80)
 
-sym_negLogLik(as.numeric(unlist(est$parameter)), df_sim)
+# sym_negLogLik(as.numeric(unlist(est$parameter)), df_sim)
 
 
 
 
 ### reward output average for 100 attempts for each models 
 
-mat_sim <- matrix(0, nrow = 12, ncol =1)
-rownames(mat_sim) <- c("agent_1","agent_2","agent_3","agent_4",
-                       "agent_5","agent_6","agent_7","agent_8",
-                       "agent_9", "agent_10", "agent_11", "agent_12")
-
-
-for (n in 1:100){
-  sim <- c(sym_sim(rewards, .5, .8)$agents_total_rewards,
-           asym_rpe_sim(rewards, .6, .2, .8)$agents_total_rewards,
-           asym_reward_sim(rewards, .6, .2, .8)$agents_total_rewards,
-           sym_auto_sim(rewards, .5, .8, .02, 1)$agents_total_rewards,
-           asym_rpe_auto_sim(rewards, .6, .2, .8, .02, 1)$agents_total_rewards,
-           asym_reward_auto_sim(rewards, .6, .2, .8, .02, 1)$agents_total_rewards,
-           ucb_sim(rewards , 0.0, 1000, 16, 16, 1.96)$agents_total_rewards,
-           ucb_asym_rpe_sim(rewards, 0, 1000, 16, 10, 22, 1.96)$agents_total_rewards,
-           ucb_asym_reward_sim(rewards, 0, 1000, 16, 10, 22, 1.96)$agents_total_rewards,
-           ucb_auto_sim(rewards , 0.0, 1000, 16, 16, 1.96, 0.5, .8)$agents_total_rewards,
-           ucb_asym_rpe_auto_sim(rewards, 0, 1000, 16, 12, 22, 1.96, .8, 1)$agents_total_rewards,
-           ucb_asym_reward_auto_sim(rewards, 0, 1000, 16, 12, 22, 1.96, .8, 1)$agents_total_rewards)
-  
-  print(n)
-  mat_sim[,1] <- c(mat_sim[,1] + sim)
-}
-
-mat_sim[,1] <- mat_sim[,1]/100
-
-mat_sim
+# mat_sim <- matrix(0, nrow = 12, ncol =1)
+# rownames(mat_sim) <- c("agent_1","agent_2","agent_3","agent_4",
+#                        "agent_5","agent_6","agent_7","agent_8",
+#                        "agent_9", "agent_10", "agent_11", "agent_12")
+# 
+# 
+# for (n in 1:100){
+#   sim <- c(sym_sim(rewards, .5, .8)$agents_total_rewards,
+#            asym_rpe_sim(rewards, .6, .2, .8)$agents_total_rewards,
+#            asym_reward_sim(rewards, .6, .2, .8)$agents_total_rewards,
+#            sym_auto_sim(rewards, .5, .8, .02, 1)$agents_total_rewards,
+#            asym_rpe_auto_sim(rewards, .6, .2, .8, .02, 1)$agents_total_rewards,
+#            asym_reward_auto_sim(rewards, .6, .2, .8, .02, 1)$agents_total_rewards,
+#            ucb_sim(rewards , 0.0, 1000, 16, 16, 1.96)$agents_total_rewards,
+#            ucb_asym_rpe_sim(rewards, 0, 1000, 16, 10, 22, 1.96)$agents_total_rewards,
+#            ucb_asym_reward_sim(rewards, 0, 1000, 16, 10, 22, 1.96)$agents_total_rewards,
+#            ucb_auto_sim(rewards , 0.0, 1000, 16, 16, 1.96, 0.5, .8)$agents_total_rewards,
+#            ucb_asym_rpe_auto_sim(rewards, 0, 1000, 16, 12, 22, 1.96, .8, 1)$agents_total_rewards,
+#            ucb_asym_reward_auto_sim(rewards, 0, 1000, 16, 12, 22, 1.96, .8, 1)$agents_total_rewards)
+#   
+#   print(n)
+#   mat_sim[,1] <- c(mat_sim[,1] + sim)
+# }
+# 
+# mat_sim[,1] <- mat_sim[,1]/100
+# 
+# mat_sim
 
 
 

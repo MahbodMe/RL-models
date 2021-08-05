@@ -1,0 +1,215 @@
+
+
+
+
+
+igt_choice <- read.csv("IGTdataSteingroever2014/choice_100.csv")
+igt_wins <- read.csv("IGTdataSteingroever2014/wi_100.csv")
+igt_losses <- read.csv("IGTdataSteingroever2014/lo_100.csv")
+
+
+igt_mat <- matrix(NA, ncol(igt_choice)*nrow(igt_choice), 6)
+
+
+colnames(igt_mat) <- c("ID", "trial", "deck", "payoff", "lab", "reward_scheme")
+
+
+for (i in 1:nrow(igt_choice)){
+  x <- (i-1)*100 
+  for (i2 in 1:ncol(igt_choice)){
+    x <- (i-1)*100 + i2
+    igt_mat[x, 1] <- i
+    igt_mat[x, 2] <- i2
+    igt_mat[x, 3] <- igt_choice[i,i2]
+    igt_mat[x, 4] <- igt_wins[i,i2] + igt_losses[i,i2]
+  }
+}
+
+igt_mat[1:162, 5] <- 1
+igt_mat[163:182, 5] <- 2
+igt_mat[183:221, 5] <- 3
+igt_mat[222:291, 5] <- 4
+igt_mat[292:316, 5] <- 5
+igt_mat[317:469, 5] <- 6
+igt_mat[470:504, 5] <- 7
+
+
+igt_mat[1:162, 6] <- 2
+igt_mat[163:182, 6] <- 1
+igt_mat[183:221, 6] <- 2
+igt_mat[222:291, 6] <- 2
+igt_mat[292:316, 6] <- 3
+igt_mat[317:469, 6] <- 3
+igt_mat[470:504, 6] <- 1
+
+
+igt_mat <- as.data.frame(igt_mat)
+
+saveRDS(igt_mat, "IGT_mat.RDS")
+
+
+dat <- igt_mat %>%
+  filter(ID == 212)
+
+dat <- dat %>%
+  filter(deck == 2)
+
+
+nrow(dat)
+
+c_rewards <- c(1, 100, 100, 50, 50, 0, 0, 0, 0, 2, 100, 100, 50, 50, 0, 0, 0, 0, 
+               3, 100, 100, 50, 50, -150, 0, -50, 0, 4, 100, 100, 50, 50, 0, 0, 0, 
+               0, 5, 100, 100, 50, 50, -300, 0, -50, 0, 6, 100, 100, 50, 50, 0, 0, 
+               0, 0, 7, 100, 100, 50, 50, -200, 0, -50, 0, 8, 100, 100, 50, 50, 0, 
+               0, 0, 0, 9, 100, 100, 50, 50, -250, -1250, -50, 0, 10, 100, 100, 50, 
+               50, -350, 0, -50, -250, 11, 100, 100, 50, 50, 0, 0, 0, 0, 12, 100, 
+               100, 50, 50, -350, 0, -25, 0, 13, 100, 100, 50, 50, 0, 0, -75, 0, 
+               14, 100, 100, 50, 50, -250, -1250, 0, 0, 15, 100, 100, 50, 50, -200, 
+               0, 0, 0, 16, 100, 100, 50, 50, 0, 0, 0, 0, 17, 100, 100, 50, 50, -300, 
+               0, -25, 0, 18, 100, 100, 50, 50, -150, 0, -75, 0, 19, 100, 100, 50, 50, 
+               0, 0, 0, 0, 20, 100, 100, 50, 50, 0, 0, -50, -250, 21, 100, 100, 50, 50, 
+               0, -1250, 0, 0, 22, 100, 100, 50, 50, -300, 0, 0, 0, 23, 100, 100, 50, 
+               50, 0, 0, 0, 0, 24, 100, 100, 50, 50, -350, 0, -50, 0, 25, 100, 100, 
+               50, 50, 0, 0, -25, 0, 26, 100, 100, 50, 50, -200, 0, -50, 0, 27, 100, 
+               100, 50, 50, -250, 0, 0, 0, 28, 100, 100, 50, 50, -150, 0, 0, 0, 29, 
+               100, 100, 50, 50, 0, 0, -75, -250, 30, 100, 100, 50, 50, 0, 0, -50, 0, 
+               31, 100, 100, 50, 50, -350, 0, 0, 0, 32, 100, 100, 50, 50, -200, -1250, 
+               0, 0, 33, 100, 100, 50, 50, -250, 0, 0, 0, 34, 100, 100, 50, 50, 0, 0, 
+               -25, 0, 35, 100, 100, 50, 50, 0, 0, -25, -250, 36, 100, 100, 50, 50, 
+               0, 0, 0, 0, 37, 100, 100, 50, 50, -150, 0, -75, 0, 38, 100, 100, 50, 
+               50, -300, 0, 0, 0, 39, 100, 100, 50, 50, 0, 0, -50, 0, 40, 100, 100, 
+               50, 50, 0, 0, -75, 0)
+
+payoff_scheme_1_temp <- matrix(NA, 40, 9)
+for (i in 1:40){
+  x <- (i-1)*9 + 1
+  y <- i*9
+  payoff_scheme_1_temp[i,1:9] <- c_rewards[x:y]
+}
+
+payoff_scheme_1 <- matrix(NA, 40, 5)
+
+payoff_scheme_1[, 1] <- payoff_scheme_1_temp[, 1]
+payoff_scheme_1[, 2] <- payoff_scheme_1_temp[, 2] + payoff_scheme_1_temp[, 6]
+payoff_scheme_1[, 3] <- payoff_scheme_1_temp[, 3] + payoff_scheme_1_temp[, 7]
+payoff_scheme_1[, 4] <- payoff_scheme_1_temp[, 4] + payoff_scheme_1_temp[, 8]
+payoff_scheme_1[, 5] <- payoff_scheme_1_temp[, 5] + payoff_scheme_1_temp[, 9]
+
+
+colnames(payoff_scheme_1) <- c("position", paste0("A",1:4))
+  
+
+saveRDS(payoff_scheme_1, "rewards_IGT_1.RDS")
+
+
+test <- payoff_scheme_1
+test[,2:5] = (((test[,2:5] - min(test[,2:5])) * (1 - (-1)) 
+               / ((min(test[,2:5])*-1)- min(test[,2:5]))) + (-1))
+
+
+
+mi <- min(test[,2:5])
+ma <- max(test[,2:5])
+for (i in 1:nrow(payoff_scheme_1)){
+  test[i,2:5] = (((test[i,2:5] - mi) * (1 - (-1)) 
+                  / (max(test[i,2:5]) - min(test[i,2:5]))) + -1)
+}
+
+
+test <- payoff_scheme_1
+test[,2:5] <- test[,2:5]/100
+y <- 0
+x <-0
+for (i in 1:1000){
+  x <- x + sym_sim(payoff_scheme_1, c(1, .8))$agents_total_rewards
+  y <- y + sym_sim(test, c(100, .8))$agents_total_rewards
+}
+x/1000
+y/1000*100
+
+asym_rpe_sim(rewards, c(9, .5, .6))
+
+
+test <- payoff_scheme[,2:5]/100
+
+
+c_rewards <- c(1, 100, 100, 50, 50, 0, 0, 0, 0, 2, 100, 100, 50, 50, -300, 0, 0, 0, 3, 100, 100, 50, 50, -150, 0, -50, 0, 4, 100, 100, 50, 50, 0, 0, 0, 0, 5, 100, 100, 50, 50, -350, 0, -50, 0, 6, 100, 100, 50, 50, 0, -1250, 0, 0, 7, 100, 100, 50, 50, 0, 0, -50, 0, 8, 100, 100, 50, 50, -250, 0, 0, 0, 9, 100, 100, 50, 50, 0, 0, -50, -250, 10, 100, 100, 50, 50, -200, 0, -50, 0)
+
+
+payoff_scheme_2_temp <- matrix(NA, 10, 9)
+for (i in 1:10){
+  x <- (i-1)*9 + 1
+  y <- i*9
+  payoff_scheme_2_temp[i,1:9] <- c_rewards[x:y]
+}
+
+
+payoff_scheme_t2<- matrix(NA, 10, 5)
+payoff_scheme_t2[, 1] <- payoff_scheme_2_temp[, 1]
+payoff_scheme_t2[, 2] <- payoff_scheme_2_temp[, 2] + payoff_scheme_2_temp[, 6]
+payoff_scheme_t2[, 3] <- payoff_scheme_2_temp[, 3] + payoff_scheme_2_temp[, 7]
+payoff_scheme_t2[, 4] <- payoff_scheme_2_temp[, 4] + payoff_scheme_2_temp[, 8]
+payoff_scheme_t2[, 5] <- payoff_scheme_2_temp[, 5] + payoff_scheme_2_temp[, 9]
+
+
+
+a1 <- rep(NA, 100)
+a2 <- rep(NA, 100)
+a3 <- rep(NA, 100)
+a4 <- rep(NA, 100)
+
+
+payoff_scheme_2 <- matrix(NA, 100, 5)
+
+
+payoff_scheme_2[1:10, 1] <- payoff_scheme_2_temp[, 1]
+payoff_scheme_2[1:10, 2] <- payoff_scheme_2_temp[, 2] + payoff_scheme_2_temp[, 6]
+payoff_scheme_2[1:10, 3] <- payoff_scheme_2_temp[, 3] + payoff_scheme_2_temp[, 7]
+payoff_scheme_2[1:10, 4] <- payoff_scheme_2_temp[, 4] + payoff_scheme_2_temp[, 8]
+payoff_scheme_2[1:10, 5] <- payoff_scheme_2_temp[, 5] + payoff_scheme_2_temp[, 9]
+
+for (i in 2:10){
+  x <- (i-1)*10 + 1
+  y <- i*10
+  payoff_scheme_2[x:y, 1] <- x:y
+  payoff_scheme_2[x:y, 2] <- sample(payoff_scheme_t2[, 2])
+  payoff_scheme_2[x:y, 3] <- sample(payoff_scheme_t2[, 2])
+  payoff_scheme_2[x:y, 4] <- sample(payoff_scheme_t2[, 2])
+  payoff_scheme_2[x:y, 5] <- sample(payoff_scheme_t2[, 2])
+}
+
+saveRDS(payoff_scheme_2, "rewards_IGT_2.RDS")
+
+c_rewards <-c(1 ,100 ,100 ,50 ,50 ,0 ,0 ,0 ,0 ,2 ,120 ,80 ,60 ,40 ,0 ,0 ,0 ,0 ,3 ,80 ,110 ,40 ,45 ,-150, 0 ,-50 ,0 ,4 ,90 ,120 ,55 ,45 ,0 ,0 ,0 ,0 ,5 ,110 ,90 ,55 ,55 ,-300 ,0 ,-50 ,0 ,6 ,100 ,100 ,45 ,60 ,0 ,0 ,0 ,0 ,7 ,80 ,90 ,50 ,40 ,-200 ,0 ,-50 ,0 ,8 ,120 ,120 ,45 ,55 ,0 ,0 ,0 ,0 ,9 ,110 ,110 ,60 ,50 ,-250 ,-1250 ,-50 ,0 ,10 ,90 ,80 ,40 ,60 ,-350 ,0 ,-50 ,-250 ,11 ,110 ,110 ,55 ,55 ,0 ,0 ,0 ,0 ,12 ,130 ,100 ,55 ,40 ,-350 ,0 ,-25 ,0 ,13 ,90 ,90 ,65 ,60 ,0 ,0 ,-75 ,0 ,14 ,100 ,130 ,45 ,40 ,-250 ,-1500 ,0 ,0 ,15 ,120 ,120 ,70 ,45 ,-200 ,0 ,-25 ,0 ,16 ,110 ,130 ,40 ,55 ,0 ,0 ,0 ,0 ,17 ,90 ,110 ,50 ,65 ,-300 ,0 ,-25 ,0 ,18 ,130 ,90 ,60 ,70 ,-150 ,0 ,-75 ,0 ,19 ,120 ,100 ,70 ,50 ,-250 ,0 ,0 ,0 ,20 ,100 ,120 ,40 ,70 ,0 ,0 ,-50 ,-275 ,21 ,120 ,120 ,60 ,60 ,-250 ,-1750 ,0 ,0 ,22 ,140 ,110 ,65 ,55 ,-300 ,0 ,-25 ,0 ,23 ,110 ,140 ,55 ,65 ,0 ,0 ,0 ,0 ,24 ,110 ,130 ,80 ,80 ,-350 ,0 ,-50 ,0 ,25 ,100 ,100 ,40 ,40 ,0 ,0 ,-25 ,0 ,26 ,120 ,110 ,60 ,80 ,-200 ,0 ,-50 ,0 ,27 ,130 ,120 ,55 ,40 ,-250 ,0 ,0 ,0 ,28 ,110 ,120 ,65 ,65 ,-150 ,0 ,-25 ,0 ,29 ,140 ,140 ,40 ,55 ,-250 ,0 ,-75 ,-300 ,30 ,120 ,110 ,80 ,60 ,0 ,0 ,-50 ,0 ,31 ,130 ,130 ,65 ,65 ,-350 ,0 ,-25 ,0 ,32 ,120 ,140 ,75 ,75 ,-200 ,-2000 ,0 ,0 ,33 ,140 ,120 ,55 ,60 ,-250 ,0 ,-25 ,0 ,34 ,130 ,110 ,60 ,65 ,-250 ,0 ,-25 ,0 ,35 ,110 ,130 ,70 ,75 ,-150 ,0 ,-25 ,-325 ,36 ,150 ,150 ,65 ,85 ,0 ,0 ,0 ,0 ,37 ,140 ,110 ,55 ,45 ,-150 ,0 ,-75 ,0 ,38 ,120 ,150 ,75 ,55 ,-300 ,0 ,-25 ,0 ,39 ,150 ,120 ,45 ,70 ,-350 ,0 ,-50 ,0 ,40 ,110 ,140 ,85 ,55 ,0 ,0 ,-75 ,0 ,41 ,140 ,140 ,70 ,70 ,-350 ,0 ,-25 ,0 ,42 ,130 ,150 ,80 ,80 ,-200 ,0 ,0 ,0 ,43 ,150 ,130 ,60 ,65 ,-250 ,0 ,-25 ,0 ,44 ,140 ,120 ,65 ,70 ,-250 ,0 ,-25 ,0 ,45 ,120 ,140 ,75 ,80 ,-150 ,0 ,-25 ,-350 ,46 ,160 ,160 ,70 ,90 ,0 ,-2250 ,-25 ,0 ,47 ,150 ,120 ,60 ,50 ,-150 ,0 ,-75 ,0 ,48 ,130 ,160 ,80 ,60 ,-300 ,0 ,-25 ,0 ,49 ,160 ,130 ,50 ,75 ,-350 ,0 ,-50 ,0 ,50 ,120 ,150 ,90 ,60 ,-250 ,0 ,-75 ,0 ,51 ,150 ,150 ,75 ,75 ,-350 ,0 ,-25 ,0 ,52 ,140 ,160 ,85 ,85 ,-200 ,0 ,-25 ,0 ,53 ,160 ,140 ,65 ,70 ,-250 ,0 ,-25 ,0 ,54 ,150 ,130 ,70 ,75 ,-250 ,0 ,-25 ,0 ,55 ,130 ,150 ,80 ,85 ,-150 ,0 ,-25 ,0 ,56 ,170 ,170 ,75 ,95 ,-250 ,0 ,-25 ,0 ,57 ,160 ,130 ,65 ,55 ,-150 ,0 ,-75 ,0 ,58 ,140 ,170 ,85 ,65 ,-300 ,-2500 ,-25 ,-375 ,59 ,170 ,140 ,55 ,80 ,-350 ,0 ,-50 ,0 ,60 ,130 ,160 ,95 ,65 ,-250 ,0 ,-75 ,0)
+
+
+payoff_scheme_3_temp <- matrix(NA, 60, 9)
+for (i in 1:60){
+  x <- (i-1)*9 + 1
+  y <- i*9
+  payoff_scheme_3_temp[i,1:9] <- c_rewards[x:y]
+}
+
+payoff_scheme_3 <- matrix(NA, 60, 5)
+payoff_scheme_3[, 1] <- payoff_scheme_3_temp[, 1]
+payoff_scheme_3[, 2] <- payoff_scheme_3_temp[, 2] + payoff_scheme_3_temp[, 6]
+payoff_scheme_3[, 3] <- payoff_scheme_3_temp[, 3] + payoff_scheme_3_temp[, 7]
+payoff_scheme_3[, 4] <- payoff_scheme_3_temp[, 4] + payoff_scheme_3_temp[, 8]
+payoff_scheme_3[, 5] <- payoff_scheme_3_temp[, 5] + payoff_scheme_3_temp[, 9]
+
+colnames(payoff_scheme_3) <- c("position", paste0("A",1:4))
+
+igt_rw_ps1 <- function(payoff_scheme, choice){
+  a_c <- payoff_scheme[2:nrow(payoff_scheme) ,choice+1]
+  a_c <- append(a_c, payoff_scheme[1,choice+1], length(a_c))
+  payoff_scheme[1:nrow(payoff_scheme) ,choice+1] <- a_c
+  return(payoff_scheme)
+}
+
+
+
+saveRDS(payoff_scheme_3, "rewards_IGT_3.RDS")
+
+
+
+test <- igt_rw_ps1(payoff_scheme_1, 3)

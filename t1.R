@@ -14,23 +14,35 @@ m10 <- readRDS("untitled//mat_emp10.RDS")
 
 
 
-
-m_df[,,1:580,1] <- m1[,,1:580,1]
-m_df[,,581:882,1] <- m2[,,581:882,1]
-m_df[,,1:580,2] <- m3[,,1:580,2]
-m_df[,,581:882,2] <- m4[,,581:882,2]
-m_df[,,1:580,3] <- m5[,,1:580,3]
-m_df[,,581:882,3] <- m6[,,581:882,3]
-m_df[,,1:580,4] <- m7[,,1:580,4]
-m_df[,,581:882,4] <- m8[,,581:882,4]
-m_df[,,1:580,5] <- m9[,,1:580,5]
-m_df[,,581:882,5] <- m10[,,581:882,5]
-
-
 saveRDS(m_df,"mat_emp_2015.RDS")
 
 
-m_emp <- readRDS("mat_emp_2015.RDS")
+
+
+m_emp <- readRDS("Payoffs.DynamicIGT")
+
+test <- load("Payoffs.DynamicIGT.Rdata")
+
+hist(sample_log_dist(test, 1000), breaks = 1)
+
+
+test <- m_emp[1,1,]
+
+for (i in 1:length(test)){
+  if (test[i]>8){
+    print(test[i])
+  }
+}
+
+sample_log_dist <- function(l_value, n_sample){
+  l_value <- log(l_value)
+  mu1 <- mean(l_value)
+  s1 <- sd(l_value)
+  r_v <- exp(dnorm(n_sample, mu1, s1))
+  return(r_v)
+}
+
+sample_log_dist(test, 1)
 m_dist
 
 colnames(m_df) <- colnames(m1)

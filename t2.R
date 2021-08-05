@@ -1,8 +1,31 @@
 
 
 
-m_emp <- readRDS("mat_emp_2015.RDS")
-m_dist <- readRDS("mat_dist.RDS")
+m_df <- readRDS("IGT_values.RDS")# Negative Log-likelihood values
+par_num <- c(2,3,3,4,5,5,5,6,6,7,8,8)
+
+m_bic <- matrix(NA, 504, 12)
+m_aic <- matrix(NA, 504, 12)
+
+
+for (id in 1:504){
+  m_aic[id, ] <- m_df[id, ]*2 + 2*par_num
+  m_bic[id, ]<- m_df[id,]*2 + log(100)*par_num    
+}
+
+
+aic_mins <- rep(0, 12)
+bic_mins <- rep(0, 12)
+
+for (id in 1:504){
+  aic_mins[which.min(m_aic[id, ])] <- aic_mins[which.min(m_aic[id, ])] + 1
+  bic_mins[which.min(m_bic[id, ])] <- bic_mins[which.min(m_bic[id, ])] + 1
+}
+
+
+
+m_emp <- readRDS("IGT_values.RDS")
+m_dist <- readRDS("mat_emp.RDS")
 env <- readRDS("env.RDS")
 
 f <- c(1,4,5)
@@ -17,8 +40,8 @@ par_num2 <- c(2,3,4,5)
 par_num3 <- c(5,6,6,7,8,8)
 k <- 6
 
-par_num <- par_num3
-m_df <- m_dist
+par_num <-
+m_df <- m_emp
 
 m_bic <- array(0, c(k,k,11,40))
 m_aic <- array(0, c(k,k,11,40))
@@ -41,10 +64,10 @@ for (s in 1:40){
       aic_min_mod[a] <- which.min(m_aic[a,1:k,i,s])
     }
     if (all(aic_min_mod == count1)){
-      acc_dis <- append(acc_dis, i)
+      acc_dis <- append(acc_dis, kf_envs[i])
     }
     if (all(bic_min_mod == count1)){
-      acc_dis <- append(acc_dis, i)
+      acc_dis <- append(acc_dis, kf_envs[i])
     }
     print(bic_min_mod)
   }
