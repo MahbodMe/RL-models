@@ -1,0 +1,32 @@
+{
+    "id": "6E1024B3",
+    "path": null,
+    "project_path": null,
+    "type": "r_dataframe",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1628442309895.0,
+    "source_on_save": false,
+    "relative_order": 19,
+    "properties": {
+        "expression": "payoff_scheme",
+        "caption": "payoff_scheme",
+        "totalObservations": "40",
+        "displayedObservations": "40",
+        "variables": "5",
+        "cacheKey": "85469A30",
+        "object": "payoff_scheme",
+        "environment": "",
+        "contentUrl": "grid_resource/gridviewer.html?env=&obj=payoff_scheme&cache_key=85469A30&max_cols=50",
+        "preview": "0"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 2322203897628598304,
+    "encoding": "",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1628442309895,
+    "read_only": false,
+    "read_only_alternatives": []
+}

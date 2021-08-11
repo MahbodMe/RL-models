@@ -138,8 +138,6 @@ asym_rpe_sim <- function(rewards, par){
 
 
 
-
-
 ### Asymmetric Simple Q learning model (actual rewards)
 
 asym_reward_sim <- function(rewards, par){
@@ -215,6 +213,7 @@ asym_reward_sim <- function(rewards, par){
 
 
 ### Symmetric Simple Q learning model + autocorrlation
+
 
 
 sym_auto_sim <- function(rewards, par) {
@@ -378,7 +377,6 @@ asym_rpe_auto_sim <- function(rewards, par){
 }
 
 
-
 ### Asymmetric Simple Q learning model (actual rewards) + autocorrlation
 
 asym_reward_auto_sim <- function(rewards, par){
@@ -467,7 +465,6 @@ asym_reward_auto_sim <- function(rewards, par){
 ### Symmetric + kalman filter + softmax UCB 
 
 
-
 ucb_sim <- function(rewards, par, m0 = 0, v0 = 1000) {
   
   gamma <- par[1]
@@ -476,13 +473,14 @@ ucb_sim <- function(rewards, par, m0 = 0, v0 = 1000) {
   beta <- par[4]
   
   nt <- nrow(rewards)
-  no <- ncol(rewards)-1
-  m <- matrix(m0,ncol=no,nrow=nt+1)
-  v <- matrix(v0,ncol=no,nrow=nt+1)
+  n_options <- ncol(rewards)-1
+  m <- matrix(m0,ncol=n_options,nrow=nt+1)
+  v <- matrix(v0,ncol=n_options,nrow=nt+1)
   choice <- rep(0,nt)
   reward <- rep(0.0,nt)
   
-  select_randomly <- sample(1:no)
+  select_randomly <- sample(1:n_options)
+  options <- rep(1:n_options, 1)
   
   for(t in 1:nt) {
     
@@ -502,7 +500,7 @@ ucb_sim <- function(rewards, par, m0 = 0, v0 = 1000) {
     # choice[t] <- which.is.max(m[t,] + beta*(sqrt(v[t,] + sigma_xi_sq)))
     reward[t] <- rewards[t, choice[t]+1]
     # Kalman updates:
-    kt <- rep(0,no)
+    kt <- rep(0,n_options)
     kt[choice[t]] <- (v[t,choice[t]] + sigma_xi_sq)/(v[t,choice[t]] + sigma_xi_sq + sigma_epsilon_sq)
     m[t+1,] <- m[t,] + kt*(reward[t] - m[t,])
     v[t+1,] <- (1-kt)*(v[t,] + sigma_xi_sq)
@@ -522,13 +520,14 @@ ucb_asym_rpe_sim <- function(rewards, par, m0 = 0, v0 = 1000){
   beta <- par[5]
 
   nt <- nrow(rewards)
-  no <- ncol(rewards)-1
-  m <- matrix(m0,ncol=no,nrow=nt+1)
-  v <- matrix(v0,ncol=no,nrow=nt+1)
+  n_options <- ncol(rewards)-1
+  m <- matrix(m0,ncol=n_options,nrow=nt+1)
+  v <- matrix(v0,ncol=n_options,nrow=nt+1)
   choice <- rep(0,nt)
   reward <- rep(0.0,nt)
   
-  select_randomly <- sample(1:no)
+  select_randomly <- sample(1:n_options)
+  options <- rep(1:n_options, 1)
   
   for(t in 1:nt) {
     
@@ -551,7 +550,7 @@ ucb_asym_rpe_sim <- function(rewards, par, m0 = 0, v0 = 1000){
       sigma_epsilon_sq <- sigma_epsilon_sq_pos
     }
     # Kalman updates:
-    kt <- rep(0,no)
+    kt <- rep(0,n_options)
     kt[choice[t]] <- (v[t,choice[t]] + sigma_xi_sq)/(v[t,choice[t]] + 
                                                        sigma_xi_sq + sigma_epsilon_sq)
     m[t+1,] <- m[t,] + kt*(reward[t] - m[t,])
@@ -572,13 +571,14 @@ ucb_asym_reward_sim <- function(rewards, par, m0 = 0, v0 = 1000) {
   beta <- par[5]
   
   nt <- nrow(rewards)
-  no <- ncol(rewards)-1
-  m <- matrix(m0,ncol=no,nrow=nt+1)
-  v <- matrix(v0,ncol=no,nrow=nt+1)
+  n_options <- ncol(rewards)-1
+  m <- matrix(m0,ncol=n_options,nrow=nt+1)
+  v <- matrix(v0,ncol=n_options,nrow=nt+1)
   choice <- rep(0,nt)
   reward <- rep(0.0,nt)
   
-  select_randomly <- sample(1:no)
+  select_randomly <- sample(1:n_options)
+  options <- rep(1:n_options, 1)
   
   for(t in 1:nt) {
     softmax_probs <- exp(gamma*(m[t,] + beta*(sqrt(v[t,] + sigma_xi_sq))))
@@ -599,7 +599,7 @@ ucb_asym_reward_sim <- function(rewards, par, m0 = 0, v0 = 1000) {
         sigma_epsilon_sq <- sigma_epsilon_sq_pos
       }
     # Kalman updates:
-    kt <- rep(0,no)
+    kt <- rep(0,n_options)
     kt[choice[t]] <- (v[t,choice[t]] + sigma_xi_sq)/(v[t,choice[t]] + 
                                                        sigma_xi_sq + sigma_epsilon_sq)
     m[t+1,] <- m[t,] + kt*(reward[t] - m[t,])
@@ -623,14 +623,15 @@ ucb_auto_sim <- function(rewards,par, m0 = 0, v0 = 1000) {
   
   rewards <- rewards[,-1]
   nt <- nrow(rewards)
-  no <- ncol(rewards)
-  m <- matrix(m0,ncol=no,nrow=nt+1)
-  v <- matrix(v0,ncol=no,nrow=nt+1)
-  choice_trace <- matrix(0, ncol = no, nrow = nt + 1)
+  n_options <- ncol(rewards)
+  m <- matrix(m0,ncol=n_options,nrow=nt+1)
+  v <- matrix(v0,ncol=n_options,nrow=nt+1)
+  choice_trace <- matrix(0, ncol = n_options, nrow = nt + 1)
   choice <- rep(0,nt)
   reward <- rep(0.0,nt)
+  options <- rep(1:n_options, 1)
   
-  select_randomly <- sample(1:no)
+  select_randomly <- sample(1:n_options)
   
   for(t in 1:nt) {
     softmax_probs <- exp(gamma*(m[t,] + beta*(sqrt(v[t,] + sigma_xi_sq)) + phi*choice_trace[t,]))
@@ -649,12 +650,12 @@ ucb_auto_sim <- function(rewards,par, m0 = 0, v0 = 1000) {
     #                          + phi*choice_trace[t,])
     reward[t] <- rewards[t,choice[t]]
     # Kalman updates:
-    kt <- rep(0,no)
+    kt <- rep(0,n_options)
     kt[choice[t]] <- (v[t,choice[t]] + sigma_xi_sq)/
       (v[t,choice[t]] + sigma_xi_sq + sigma_epsilon_sq)
     m[t+1,] <- m[t,] + kt*(reward[t] - m[t,])
     v[t+1,] <- (1-kt)*(v[t,] + sigma_xi_sq)
-    indicator <- rep(0,no)
+    indicator <- rep(0,n_options)
     indicator[choice[t]] <- 1
     choice_trace[t+1, ] <- (choice_trace[t,] - tau*choice_trace[t,] + tau*indicator)
   }
@@ -673,14 +674,15 @@ ucb_asym_rpe_auto_sim <- function(rewards, par, m0 = 0, v0 = 1000){
   phi <- par[7]
   
   nt <- nrow(rewards)
-  no <- ncol(rewards)-1
-  m <- matrix(m0,ncol=no,nrow=nt+1)
-  v <- matrix(v0,ncol=no,nrow=nt+1)
-  choice_trace <- matrix(0, ncol = no, nrow = nt + 1)
+  n_options <- ncol(rewards)-1
+  m <- matrix(m0,ncol=n_options,nrow=nt+1)
+  v <- matrix(v0,ncol=n_options,nrow=nt+1)
+  choice_trace <- matrix(0, ncol = n_options, nrow = nt + 1)
   choice <- rep(0,nt)
   reward <- rep(0.0,nt)
+  options <- rep(1:n_options, 1)
   
-  select_randomly <- sample(1:no)
+  select_randomly <- sample(1:n_options)
   
   for(t in 1:nt) {
     softmax_probs <- exp(gamma*(m[t,] + beta*(sqrt(v[t,] + sigma_xi_sq)) + phi*choice_trace[t,]))
@@ -703,14 +705,14 @@ ucb_asym_rpe_auto_sim <- function(rewards, par, m0 = 0, v0 = 1000){
         sigma_epsilon_sq <- sigma_epsilon_sq_pos
       }
     # Kalman updates:
-    kt <- rep(0,no)
+    kt <- rep(0,n_options)
     kt[choice[t]] <- (v[t,choice[t]] + sigma_xi_sq)/(v[t,choice[t]] + 
                                                        sigma_xi_sq + sigma_epsilon_sq)
     m[t+1,] <- m[t,] + kt*(reward[t] - m[t,])
     v[t+1,] <- (1-kt)*(v[t,] + sigma_xi_sq)
     
     # choice trace update
-    indicator <- rep(0,no)
+    indicator <- rep(0,n_options)
     indicator[choice[t]] <- 1
     choice_trace[t+1, ] <- (choice_trace[t,] - tau*choice_trace[t,] + tau*indicator)
   }
@@ -720,9 +722,7 @@ ucb_asym_rpe_auto_sim <- function(rewards, par, m0 = 0, v0 = 1000){
 }
 
 ### aymmetric (reward) + kalman filter + UCB + autocorrlation
-
-
-ucb_asym_reward_auto_sim <- function(rewards, m0 = 0, v0 = 1000){
+ucb_asym_reward_auto_sim <- function(rewards, par, m0 = 0, v0 = 1000){
   gamma <- par[1]
   sigma_xi_sq <- par[2]
   sigma_epsilon_sq_pos <- par[3]
@@ -732,14 +732,15 @@ ucb_asym_reward_auto_sim <- function(rewards, m0 = 0, v0 = 1000){
   phi <- par[7]
   
   nt <- nrow(rewards)
-  no <- ncol(rewards)-1
-  m <- matrix(m0,ncol=no,nrow=nt+1)
-  v <- matrix(v0,ncol=no,nrow=nt+1)
-  choice_trace <- matrix(0, ncol = no, nrow = nt + 1)
+  n_options <- ncol(rewards)-1
+  m <- matrix(m0,ncol=n_options,nrow=nt+1)
+  v <- matrix(v0,ncol=n_options,nrow=nt+1)
+  choice_trace <- matrix(0, ncol = n_options, nrow = nt + 1)
   choice <- rep(0,nt)
   reward <- rep(0.0,nt)
+  options <- rep(1:n_options, 1)
   
-  select_randomly <- sample(1:no)
+  select_randomly <- sample(1:n_options)
   
   for(t in 1:nt) {
     softmax_probs <- exp(gamma*(m[t,] + beta*(sqrt(v[t,] + sigma_xi_sq)) + phi*choice_trace[t,]))
@@ -752,6 +753,7 @@ ucb_asym_reward_auto_sim <- function(rewards, m0 = 0, v0 = 1000){
       choice[t] <- sample(options, size = 1, prob = softmax_probs)
     }
     
+    
     # choose the option with the highest UCB, breaking ties at random
     #choice[t] <- which.is.max(m[t,] + beta*sqrt(v[t,] + sigma_xi_sq ) 
     #                          + phi*choice_trace[t,])
@@ -761,14 +763,14 @@ ucb_asym_reward_auto_sim <- function(rewards, m0 = 0, v0 = 1000){
         sigma_epsilon_sq <- sigma_epsilon_sq_pos
       }
     # Kalman updates:
-    kt <- rep(0,no)
+    kt <- rep(0,n_options)
     kt[choice[t]] <- (v[t,choice[t]] + sigma_xi_sq)/(v[t,choice[t]] + 
                                                        sigma_xi_sq + sigma_epsilon_sq)
     m[t+1,] <- m[t,] + kt*(reward[t] - m[t,])
     v[t+1,] <- (1-kt)*(v[t,] + sigma_xi_sq)
     
     # choice trace update
-    indicator <- rep(0,no)
+    indicator <- rep(0,n_options)
     indicator[choice[t]] <- 1
     choice_trace[t+1, ] <- (choice_trace[t,] - tau*choice_trace[t,] + tau*indicator)
   }

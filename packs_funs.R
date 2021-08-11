@@ -30,6 +30,37 @@ reward_generator <- function(seed, nt, no, error_term, innovation_term, mu0){
   return(rewards)
 }
 
+reward_generator_binary <- function(seed, nt, rewards_best_first, probs_of_winning){
+  no <- 2
+  set.seed(seed) # set the random seed to replicate these results exactly
+  mu <- matrix(0.0,nrow=nt,ncol=no) # to store the time-varying means
+  for(t in 1:nt) {
+    for(i in 1:no) {
+      p <- probs_of_winning[i]
+      p <- c(p, 1-p)
+      mu[t,i] <- sample(rewards_best_first, size = 1, prob = p)
+    }
+  }
+  rewards <- as.data.frame(cbind(1:nt,mu))
+  colnames(rewards) <- c("trial",paste0("A",1:no))
+  
+  return(rewards)
+}
+
+reward_generator_binary(2, 24, c(.5,-.5), c(.75, .25))
+
+
+plot_rewards <- function(data){
+  return(
+    data %>%
+      gather(key=option,value=data,-trial) %>%
+      ggplot(aes(x=trial,y=data,colour=option)) + geom_line()
+  )
+}
+
+
+
+
 
 # Example:
 # rw <- reward_generator(3, 200, 4, 16, 16, c(-4, 4, -12, 12))
@@ -60,12 +91,30 @@ plot_rewards <- function(data){
 # for each of the models 
 
 
+# sim_behav_data_csv <- function(data, funs, pars, no, nt, envir = parent.frame()){
+#   mat <- matrix(0, nrow = length(funs)*nt, ncol = 3)
+#   for (i in 1:length(funs)){
+#     fun <- funs[i]
+#     par <- as.numeric(unlist(pars[i]))
+#     sim <- do.call(fun, c(list(data), par[1:length(par)]))
+#     x <- (i-1)*nt + 1
+#     y <- i*nt
+#     mat[x:y ,1] <- rep(i, nt)
+#     mat[x:y ,2] <- head(sim$choices, nt)
+#     mat[x:y ,3] <- head(sim$agents_rewards, nt)
+#   }
+#   mats <- as.data.frame(cbind(1:nt, mat))
+#   colnames(mats) <- c("trial", "id", "deck", "payoff")
+#   return(data_sim = mats)
+# }
+
+
 sim_behav_data_csv <- function(data, funs, pars, no, nt, envir = parent.frame()){
   mat <- matrix(0, nrow = length(funs)*nt, ncol = 3)
   for (i in 1:length(funs)){
     fun <- funs[i]
     par <- as.numeric(unlist(pars[i]))
-    sim <- do.call(fun, c(list(data), par[1:length(par)]))
+    sim <- do.call(fun, c(list(data), list(par)))
     x <- (i-1)*nt + 1
     y <- i*nt
     mat[x:y ,1] <- rep(i, nt)
@@ -76,6 +125,7 @@ sim_behav_data_csv <- function(data, funs, pars, no, nt, envir = parent.frame())
   colnames(mats) <- c("trial", "id", "deck", "payoff")
   return(data_sim = mats)
 }
+
 
 # df_sim <- sim_behav_data_csv(rewards, c("ucb_sim"), list(c(0, 1000, 16,16, 1.96)), 8, 80)
 

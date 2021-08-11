@@ -1,0 +1,8 @@
+
+
+for (i in 1:length(seed_index)){
+  t <- array(unlist(result[[i]]), dim = c(12, 12))
+  for (i2 in nrow(test)){
+    mr[i,,i2] <- t[,i2]  
+  }
+}

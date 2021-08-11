@@ -25,25 +25,46 @@ for (i in 1:nrow(igt_choice)){
   }
 }
 
-igt_mat[1:162, 5] <- 1
-igt_mat[163:182, 5] <- 2
-igt_mat[183:221, 5] <- 3
-igt_mat[222:291, 5] <- 4
-igt_mat[292:316, 5] <- 5
-igt_mat[317:469, 5] <- 6
-igt_mat[470:504, 5] <- 7
 
 
-igt_mat[1:162, 6] <- 2
-igt_mat[163:182, 6] <- 1
-igt_mat[183:221, 6] <- 2
-igt_mat[222:291, 6] <- 2
-igt_mat[292:316, 6] <- 3
-igt_mat[317:469, 6] <- 3
-igt_mat[470:504, 6] <- 1
+
+for (i in 1:nrow(igt_mat)) {
+  
+  if (igt_mat[i,1]< 163){
+    igt_mat[i,5] <- 1
+    igt_mat[i,6] <- 2
+  }
+  if (igt_mat[i,1]  > 162 & igt_mat[i,1]  < 183){
+    igt_mat[i,5] <- 2
+    igt_mat[i,6] <- 1
+  }
+  if (igt_mat[i,1]  > 182 & igt_mat[i,1]  < 222){
+    igt_mat[i,5] <- 3
+    igt_mat[i,6] <- 2
+  }
+  if (igt_mat[i,1]  > 221 & igt_mat[i,1]  < 292){
+    igt_mat[i,5] <- 4
+    igt_mat[i,6] <- 2
+  }
+  if (igt_mat[i,1]  > 291 & igt_mat[i,1]  < 317){
+    igt_mat[i,5] <- 5
+    igt_mat[i,6] <- 3
+  }
+  if (igt_mat[i,1]  > 316 & igt_mat[i,1]  < 470){
+    igt_mat[i,5] <- 6
+    igt_mat[i,6] <- 3
+  }
+  if (igt_mat[i,1]  > 469 & igt_mat[i,1]  < 505){
+    igt_mat[i,5] <- 7
+    igt_mat[i,6] <- 1
+  }
+  print(igt_mat[i,1])
+}
 
 
 igt_mat <- as.data.frame(igt_mat)
+test <-  subset(igt_mat, igt_mat$reward_scheme == 3)
+length(unique(test$ID))
 
 saveRDS(igt_mat, "IGT_mat.RDS")
 

@@ -1,0 +1,623 @@
+# packages and libraries
+library(readr)
+library(ggplot2)
+library(dplyr)
+library(GGally)
+library(sdamr)
+library(emmeans)
+install.packages("mediation")
+install.packages("lsr")
+install.packages("e1071")
+install.packages("psych")
+
+# loading the CSV file
+df <- read.csv("data_76.csv")
+
+### EDA
+
+## Summary EDA
+glimpse(df)
+
+df %>%
+  filter(condition == "control") %>%
+  select(performance, reflection, ave_rt, numeracy, rules, education, age_group) %>%
+  summary()
+df %>%
+  filter(condition == "slow") %>%
+  select(performance, reflection, ave_rt, numeracy, rules, education, age_group) %>%
+  summary()
+df %>%
+  filter(condition == "fast") %>%
+  select(performance, reflection, ave_rt, numeracy, rules, education, age_group) %>%
+  summary()
+df %>%
+  filter(condition == "incentive") %>%
+  select(performance, reflection, ave_rt, numeracy, rules, education, age_group) %>%
+  summary()
+df %>%
+  filter(condition == "fast-slow") %>%
+  select(performance, reflection, ave_rt, numeracy, rules, education, age_group) %>%
+  summary() 
+
+
+
+
+
+## visual EDA
+ggpairs(df[,c("reflection", "numeracy", "rules", "performance", "ave_rt", "age_group", "follow_instructions")], 
+        upper= list(continuous = wrap(ggally_cor, family="sans"))) + labs(title="Exploratory Data Analysis")
+# Average response time is interesting in the visual EDA. But since participants in the fast condition
+# are instructed to think fast, they will have a lower average response time
+# Thus in the next visual EDA I remove the fast condition to see if it is still interesting
+
+
+
+
+df %>%
+  filter(condition != "fast") %>%
+  ggpairs(,c("reflection", "numeracy", "rules", "performance", "ave_rt", "age_group", "follow_instructions"),
+          upper= list(continuous = wrap(ggally_cor, family="sans"))) + labs(title="EDA")
+# Average response time (ave_rt) is still significantly correlated with both performances on the 
+# judgment task and rule application items. As rule application items score measures participant's access
+# to the rules needed to perform well on the judgment task, in my post hoc analysis. 
+# I hypothesis that the average time on the judgment task is mediated by access to rule application. 
+# That is participants who have access to these rules (i.e. higher score on this measure) take less time 
+# to complete the judgment task.
+
+
+plot_raincloud(df, performance, groups = condition) + 
+  labs(title = "Judment task performance among different conditions", y="Scores of the judement tasks", x="Conditions")
+# The mean between conditions, other than the fast condition, seem to be the same, 
+
+
+# For easier interpretation
+df <- df %>%
+  mutate(education2 = if_else(education==3, "Some high school", 
+                              if_else(education==4, "High school diploma", 
+                                      if_else(education==5, "Associate degree", 
+                                              if_else(education==6, "Bachelor’s degree", 
+                                                      if_else(education==7, "Master’s degree", 
+                                                              if_else(education==8, "Doctorate (or more)", "NA")))))))
+
+
+plot_raincloud(df, performance, groups = education2) + 
+  labs(title = "No instruction vs. Thinking Fast", y="Scores of the judement tasks", x="Conditions")
+# Education is very interesting. Scores differ among some of the education levels
+# I will explore Education in my post hoc analysis
+# particlarly looking at how it affects performance on the judgement tasks
+# and as well if instructing the participants in the fast or the differ from each other and the control group 
+# for those with different education level
+
+
+
+
+### Confirmatory Analysis
+
+## First Analysis
+# Does instructing participants to “think slow” increase or decrease their overall performance in the judgment tasks 
+# (compared to no instruction)? 
+
+# I want to keep the procedure as simple as possible. 
+# There are two independent groups of the same size, with the same dependent variable. 
+# Thus, a single independent samples t-test is enough to distinguish between these two sample groups. 
+
+
+
+df_slow <- df %>% #experimental group
+  filter(condition=="slow")
+df_control <- df %>% #control group
+  filter(condition=="control")
+df_slow_control <- df %>% #experimental and control group
+  filter(condition=="control" | condition=="slow")
+           
+#visualizing the two groups
+plot_raincloud(df_slow_control, performance, groups = condition) + 
+  labs(title = "No instruction vs. Thinking Slow", y="Scores of the judement tasks", x="Conditions")
+
+# Assumptions:
+# Assumption 1: Are the two samples independents?
+# Yes, the samples are not related, the samples were randomly selected and assigned.
+# Assumption 2: Are the data from each of the 2 groups follow a normal distribution?
+# As a rule of thumb, if skewness is between -.5 and .5 the distribution is fairly symmetrical, 
+# between -1 and – 0.5 or between 0.5 and 1, the distribution is moderately skewed, 
+# and anything more extreme is highly skewed. 
+
+e1071::skewness(df_slow$performance) #results: -.350
+e1071::skewness(df_control$performance) #results: .010
+
+# This assumption of normality is granted as both groups are fairly symmetrical. 
+# Assumption 3: Do the two populations have the same variances?
+
+test_var <- var.test(performance ~ condition, data = df_slow_control)
+test_var #p = .760
+
+# The p-value is much higher than .05, 
+# which indicates the difference in variance between the two groups is not significant.
+
+# We have met all the assumptions and now can proceed to our analysis.
+
+t.test(df_slow$performance, df_control$performance, alternative = "two.sided", var.equal = TRUE)
+#results were not significant p = .656
+
+#More information to report the results
+summary(df_slow$performance) 
+sample_sd(df_slow$performance) #2.935
+nrow(df_slow) #number of participants in the expriment group, 200
+summary(df_control$performance)
+sample_sd(df_control$performance) #2.872
+nrow(df_control) #number of participants in the control group, 200
+df_slow_control$condition <- as.factor(df_slow_control$condition)
+contrasts(df_slow_control$condition) <- cbind(c1 = c(-1/2, 1/2))
+psych::cohen.d(df_slow_control$performance, df_slow_control$condition) # effect size = .04
+
+##Second Analysis
+# Does instructing participants to “think fast” increase or decrease their overall performance in the judgement tasks
+# (compared to no instruction)? 
+
+# Again, I want to keep the procedure as simple as possible. 
+# There are two independent groups of the same size, with the same dependent variable. 
+# Thus, a single independent samples t-test is enough to distinguish between these two sample groups.
+
+
+df_fast <- df %>%
+  filter(condition=="fast")
+df_control <- df %>% #same as before, included here for clarity
+  filter(condition=="control")
+df_fast_control <- df %>%
+  filter(condition=="control" | condition=="fast")
+
+#visualizing the two groups
+plot_raincloud(df_fast_control, performance, groups = condition) + 
+  labs(title = "No instruction vs. Thinking Fast", y="Scores of the judement tasks", x="Conditions")
+
+
+# Assumptions:
+# Assumption 1: Are the two samples independents?
+# Yes, the samples are not related, the samples were randomly selected and assigned.
+# Assumption 2: Are the data from each of the 2 groups follow a normal distribution?
+# As a rule of thumb, if skewness is between -.5 and .5 the distribution is fairly symmetrical, 
+# between -1 and – 0.5 or between 0.5 and 1, the distribution is moderately skewed, 
+# and anything more extreme is highly skewed. 
+
+e1071::skewness(df_fast$performance) #results: .036
+e1071::skewness(df_control$performance) #results: .010
+
+# This assumption of normality is granted as both groups are fairly symmetrical. 
+# Assumption 3: Do the two populations have the same variances?
+
+test_var <- var.test(performance ~ condition, data = df_slow_control)
+test_var #p = .760
+
+# The p-value is much higher than .05, 
+# which indicates the difference in variance between the two groups is not significant.
+
+# We have met all the assumptions and now can proceed to our analysis.
+
+
+t.test(df_fast$performance, df_control$performance, alternative = "two.sided", var.equal = TRUE)
+#results were significant, p>.01
+#More information to report the results
+summary(df_fast$performance) 
+sample_sd(df_fast$performance) #2.905
+nrow(df_slow) #number of participants in the expriment group
+summary(df_control$performance)
+sample_sd(df_control$performance) #2.872
+nrow(df_control) #number of participants in the control group
+df_fast_control$condition <- as.factor(df_fast_control$condition)
+contrasts(df_fast_control$condition) <- cbind(c1 = c(-1/2, 1/2))
+psych::cohen.d(df_fast_control$performance, df_slow_control$condition) # effect size (d) -0.13
+
+
+## Third Analysis
+# Are these effects different for those with a different “natural tendency” to cognitively reflect on problems (CRT)?
+
+# Here, instead of redoing the two tests with the addition of including a covariate (scores on CRT), I will use a single ANCOVA model.
+# Conducting my analysis through a single model also will reduce the chance of obtaining a type I error.
+
+
+df_of_interest <- df %>%
+  filter(condition=="control" | condition=="fast" | condition=="slow")
+
+
+ggpubr::ggscatter(
+  df_of_interest, x = "reflection", y = "performance",
+  color = "condition", add = "reg.line"
+) 
+
+# I recognize this graph looks weird. I believe this is due to the continuous nature of the results on judgement tasks and CRT scores. 
+# Therefore I decided  remove the points and do two separate boxplots for each measure grouping them by conditions
+
+
+ggplot(df_of_interest, aes(x=reflection, y=performance, color=condition)) + geom_smooth(method=lm)
+
+plot_raincloud(df_of_interest, performance, groups = condition) 
+  labs(title = "No instruction vs. Thinking Fast vs. Thnking Slow", y="Scores of the judement tasks", x="Conditions")
+
+par(mfrow=c(1,2))
+
+boxplot(performance~condition, data=df_of_interest,
+        col=(c("green","darkgreen", "lightgreen")),
+        main="Judgmenet score by condition", xlab="Conditions", ylab="Judegment tast Score")
+
+boxplot(reflection~condition, data=df_of_interest,
+        col=(c("green","darkgreen", "lightgreen")),
+        main="CRT score by condition", xlab="Conditions", ylab="CRT scores")
+
+
+#centering the covariate around the mean, min, and max to improve interpretability.
+df_of_interest <- df_of_interest %>%
+  mutate(reflection_center = reflection - mean(reflection),
+         reflection_min_adj = reflection - min(reflection),
+         reflection_max_adj = reflection - max(reflection))
+
+
+
+df_of_interest$condition <- as.factor(df_of_interest$condition)
+contrasts(df_of_interest$condition) <- cbind(fast = c(-1/3, 2/3, -1/3 ), slow = c(-1/2, 0, 1/2))
+modg <- lm(performance ~ condition * reflection, df_of_interest)
+modr <- lm(performance ~ condition + reflection, df_of_interest)
+summary(modg)
+car::Anova(modg, type=3)
+car::Anova(modr, type=3)
+car::Anova(modg, type=2)
+# Important: The test results are not significant for the fast condition, however when using 
+# Dr.Speekenbrink's code To get more results, the ANOVA type 3 is significant for the fast condition
+# As well it is said that type 3 when there is a covariate and interaction, has lower power for main 
+# effect, when a type 2 error ANOVA is conducted significance is there, therefore I decided as the 
+# interaction is not significant and the SSE for is near zero, this is probably a type 2 error. 
+# Therefore, I will use the result from the code below. As well when the covariate is centred around
+# the mean, the results are very similar to the Type 2 ANOVA
+
+anova(modr, modg)
+
+
+mf <- stats::model.frame(modg)
+mm <- stats::model.matrix(modg)
+if(colnames(mm)[1] == "(Intercept)") {
+  colnames(mm)[1] <- "Intercept0"
+}
+pred_terms <- colnames(mm)
+resp <- stats::model.extract(mf,"response")
+resp.name <- colnames(mf)[1] 
+tdat <- as.data.frame(cbind(resp,mm))
+cn <- colnames(tdat)
+colnames(tdat)[1] <- resp.name
+mod2 <- stats::lm(stats::as.formula(paste(resp.name, " ~ ",paste(pred_terms,collapse=" + "),"-1")),data=tdat)
+aov2 <- car::Anova(mod2, type=3)
+if(rownames(aov2)[1] == "Intercept0") rownames(aov2)[1] <- "(Intercept)"
+aov2
+
+ems <- emmeans(modtcenter, specs = ~ reflection_center::condition)
+ems 
+
+
+lsr::etaSquared(modtcenter, type = 2, anova = FALSE)
+
+#Condition "fast" is still significant compared to the avg mean of the other two groups with the slope of -1.126 and p < .01
+#Reflection is a significant predictor of performance, 
+#with a slope of .721 which indicates that for a single increase in CRT score, 
+#there will .721 increase in performance on judgment task, while controlling for condition, (p<.01)
+#MSE
+
+mse_condition <- (33.1)/594 # .29
+mse_reflection <- (1367.7/594) # 2.30
+
+#our model with interaction
+modtcenter <- lm(performance ~ condition*reflection_center, df_of_interest)
+summary(modtcenter)
+car::Anova(modtcenter, type=3)
+
+
+
+
+# The same slope of relfelction at each level 
+modtmax <- lm(performance ~ condition*reflection_max_adj, df_of_interest)
+summary(modtmax)
+car::Anova(modtmax, type=3)
+ems <- emmeans(modtmax, specs = ~ reflection_max_adj::condition)
+ems 
+# The same slope of relfelction at each level 
+modtmin <- lm(performance ~ condition*reflection_min_adj, df_of_interest)
+summary(modtmin)
+car::Anova(modtmin, type=3) 
+ems <- emmeans(modtmax, specs = ~ reflection_max_adj::condition)
+ems 
+# The same slope of reflection at each level 
+
+
+# As none of the interactions are significant, we can assume that the effect of the covariate on the dependent variable
+# is the same in each condition. This also indicates that the conditions have the same effect regardless of the value on the covariate
+# Therefore since our question was the latter part, this will be the model I will use when reporting our result.
+# Interesting thing to note here, when conducting a type 3 Anova with reflection centred around the min value and 
+# interaction included, the omnibus test for condition is no longer significant.
+# As the interaction is not significant, intuitively this does not make sense and it is most likely due to the fact that the 
+# Including an interaction decreases the power of the test as type II is statistically more powerful than type III 
+# However, when using a code provided to gain the MSE for each condition, the fast condition is significant
+# Therefore I will proceed with the result of that code as I believe the lack of power of the test omnibus type III ANOVA is yielding 
+# a type II error
+# As well some argue that for an ANCOVA type II is more appropriate 
+
+#Effect size (eta) of the ANCOVA test
+lsr::etaSquared(modtcenter, type = 3, anova = FALSE)
+lsr::etaSquared(modtmax, type = 3, anova = FALSE)
+lsr::etaSquared(modtmin, type = 3, anova = FALSE)
+#eta.sq.part: condition = .0446, reflection = .270
+
+
+
+#checking assumptions
+par(mfrow = c(2,2))
+plot(modg)
+errorG <- residuals(modg)
+par(mfrow = c(1,2))
+plot(errorG)
+hist(errorG)
+par(mfrow = c(1,1))
+# Assumptions:
+# All the assumptions seem to check out through visual tests
+# I will also use a model that includes interaction between the covariate and the conditions to check for Homogeneity of slopes
+# That is if the effect of the covariate on the dependent variable is the same in each condition.
+
+
+ems <- emmeans(modt, specs = ~ reflection::condition)
+ems
+# This again reaffirms that there is no interaction as the reflection score is the same through all conditions 
+
+# For printing purposes to include the sum of the square for each contrast codes
+
+mf <- stats::model.frame(modtcenter)
+mm <- stats::model.matrix(modtcenter)
+if(colnames(mm)[1] == "(Intercept)") {
+  colnames(mm)[1] <- "Intercept0"
+}
+pred_terms <- colnames(mm)
+resp <- stats::model.extract(mf,"response")
+resp.name <- colnames(mf)[1] # needs checking
+tdat <- as.data.frame(cbind(resp,mm))
+cn <- colnames(tdat)
+colnames(tdat)[1] <- resp.name
+mod2 <- stats::lm(stats::as.formula(paste(resp.name, " ~ ",paste(pred_terms,collapse=" + "),"-1")),data=tdat)
+aov2 <- car::Anova(mod2, type=3)
+if(rownames(aov2)[1] == "Intercept0") rownames(aov2)[1] <- "(Intercept)"
+aov2
+
+mse_center <- 168.3/594 #.28
+
+
+mf <- stats::model.frame(modtmax)
+mm <- stats::model.matrix(modtmax)
+if(colnames(mm)[1] == "(Intercept)") {
+  colnames(mm)[1] <- "Intercept0"
+}
+pred_terms <- colnames(mm)
+resp <- stats::model.extract(mf,"response")
+resp.name <- colnames(mf)[1] # needs checking
+tdat <- as.data.frame(cbind(resp,mm))
+cn <- colnames(tdat)
+colnames(tdat)[1] <- resp.name
+mod2 <- stats::lm(stats::as.formula(paste(resp.name, " ~ ",paste(pred_terms,collapse=" + "),"-1")),data=tdat)
+aov2 <- car::Anova(mod2, type=3)
+if(rownames(aov2)[1] == "Intercept0") rownames(aov2)[1] <- "(Intercept)"
+aov2
+
+mse_max <- 60.1/294 #.20
+
+
+mf <- stats::model.frame(modtmin)
+mm <- stats::model.matrix(modtmin)
+if(colnames(mm)[1] == "(Intercept)") {
+  colnames(mm)[1] <- "Intercept0"
+}
+pred_terms <- colnames(mm)
+resp <- stats::model.extract(mf,"response")
+resp.name <- colnames(mf)[1] # needs checking
+tdat <- as.data.frame(cbind(resp,mm))
+cn <- colnames(tdat)
+colnames(tdat)[1] <- resp.name
+mod2 <- stats::lm(stats::as.formula(paste(resp.name, " ~ ",paste(pred_terms,collapse=" + "),"-1")),data=tdat)
+aov2 <- car::Anova(mod2, type=3)
+if(rownames(aov2)[1] == "Intercept0") rownames(aov2)[1] <- "(Intercept)"
+aov2
+
+mse_min <- 32.2/594 #.05
+
+### Post Hoc analysis
+## Forth Analysis
+# Is average response time on the judgment task mediated by access to rule application? 
+# That is participants who have access to these rules (i.e. higher score on this measure) take less time 
+# to complete the judgment task.
+# I will conduct a mediation analysis to figure this out
+# The main assumption for mediation analysis is normality
+
+e1071::skewness(df$ave_rt) # ave_rt is highly and positively skewed  
+e1071::skewness(df$performance) #Fairly normal
+e1071::skewness(df$rules) #Negatively Skewed
+
+# To adjust I will take log(10) of each score on this measure
+df2 <- df %>%
+  mutate(ave_rt = log(ave_rt, 10), rules = rules**2)
+
+df2 %>%
+  filter(condition != "fast") %>%
+  ggpairs(df2[,c("rules", "performance", "ave_rt")], 
+        upper= list(continuous = wrap(ggally_cor, family="sans"))) + labs(title="Exploratory Data Analysis")
+
+ggpairs(df2[,c("rules", "performance", "ave_rt")], 
+        upper= list(continuous = wrap(ggally_cor, family="sans"))) + labs(title="Exploratory Data Analysis")
+
+e1071::skewness(df2$ave_rt) # Now the measure is fairly symmetrical (-0.03)
+e1071::skewness(df2$rules)  # Now fairly symmetrical -.54
+
+
+# Causal steps
+
+mod1 <- lm(performance ~ ave_rt, df2)
+summary(mod1)
+# Step one satisfied
+mod2 <- lm(rules ~ ave_rt, df2)
+summary(mod2)
+# Step two satisfied 
+mod3 <- lm(performance ~ ave_rt + rules, df2)
+summary(mod3)
+
+# Step three satisfied 
+# The model is full mediation
+
+set.seed(20210118)
+med <- mediation::mediate(model.m = mod2, model.y = mod3, sims = 2000, boot = TRUE, boot.ci.type = "bca", treat = "ave_rt", mediator = "rules")
+summary(med)
+
+# ACME is significant, ADE is as well, total effect and prop. Mediated are as well
+# The assumptions are satisfied and the non-parametric analysis confirms the analysis
+
+# Repeating the analysis without the fast condition
+df3 <- df2 %>%
+  filter(condition != "fast")
+
+mod1 <- lm(performance ~ ave_rt, df3)
+summary(mod1)
+# Step one satisfied
+mod2 <- lm(rules ~ ave_rt, df3)
+summary(mod2)
+# Step two satisfied 
+mod3 <- lm(performance ~ ave_rt + rules, df3)
+summary(mod3)
+# Step three satisfied 
+# The model is still apartial medaition mediation
+
+set.seed(20210118)
+med <- mediation::mediate(model.m = mod2, model.y = mod3, sims = 2000, boot = TRUE, boot.ci.type = "bca", treat = "ave_rt", mediator = "rules")
+summary(med)
+
+
+# Non-parametric analysis confirms the results
+
+
+
+## Fifth Analysis
+# Does instructing the participants to think fast or slow differ from each other and the control group
+# for those with different education level?
+
+# Visualizing the question
+df_of_interest$con_edu <- interaction(df_of_interest$education2, df_of_interest$condition)
+levels(df_of_interest$con_edu)
+factor(df_of_interest$condition)
+df_of_interest$condition <- factor(df_of_interest$condition, labels = c("C", "F", "S"))
+factor(df_of_interest$education2)
+df_of_interest$education2 <- factor(df_of_interest$education2, labels = c("A", "B", "D", "HS", "M", "SH"))
+
+df_of_interest$con_edu <- interaction(df_of_interest$education2, df_of_interest$condition, sep="-")
+
+plot_raincloud(df_of_interest, performance, groups=con_edu)
+plot_raincloud(df_of_interest, performance, groups = education2) + facet_grid(~condition) + 
+  labs(title = "Performance on judement tasks for different education levels and conditions", y="Judment task scores", x="Education" )
+
+
+# I will use a factorial ANOVA to investigate the question
+
+# Droping education levels
+df3 <- df_of_interest %>%
+  filter(education == 6 | education == 7 | education == 5 | education==4)
+factor(df3$condition)
+
+# Visualizing the data
+df3$condition <- factor(df3$condition, labels = c("C", "F", "S"))
+factor(df3$education2)
+df3$education2 <- factor(df3$education2, labels = c("A", "B", "HS", "M"))
+df3$con_edu <- interaction(df3$education2, df3$condition, sep="-")
+plot_raincloud(df3, performance, groups=con_edu)
+plot_raincloud(df3, performance, groups = education2) + facet_grid(~condition)
+
+plot_raincloud(df3, performance, groups = education2) + facet_grid(~condition) + 
+  labs(title = "Performance on judement tasks for different education levels and conditions", y="Judment task scores", x="Education" )
+
+
+# Assigning conrast codes
+contrasts(df3$education2) <- cbind(HS_C = c(-1/4, -1/4, 3/4, -1/4), B_C = c(-1/3, 2/3, 0, -1/3), M_C= c(-1/2, 0, 0, 1/2))
+
+contrasts(df3$condition) <- cbind(fast = c(-1/3, 2/3, -1/3 ), slow = c(-1/2, 0, 1/2))
+
+
+  
+# The analysis
+modg <- lm(performance ~ condition*education2, data=df3)
+summary(modg)
+car::Anova(modg, type=2)
+
+mf <- stats::model.frame(modg)
+mm <- stats::model.matrix(modg)
+if(colnames(mm)[1] == "(Intercept)") {
+  colnames(mm)[1] <- "Intercept0"
+}
+pred_terms <- colnames(mm)
+resp <- stats::model.extract(mf,"response")
+resp.name <- colnames(mf)[1] # needs checking
+tdat <- as.data.frame(cbind(resp,mm))
+cn <- colnames(tdat)
+colnames(tdat)[1] <- resp.name
+mod2 <- stats::lm(stats::as.formula(paste(resp.name, " ~ ",paste(pred_terms,collapse=" + "),"-1")),data=tdat)
+aov2 <- car::Anova(mod2, type=2)
+if(rownames(aov2)[1] == "Intercept0") rownames(aov2)[1] <- "(Intercept)"
+aov2
+mse_edu <- 6.5/567
+mse_fast <- 136/567
+
+ems <- emmeans(modtcenter, specs = ~ reflection_center::condition)
+ems 
+
+
+
+ems <- emmeans::emmeans(modg, specs = pairwise ~ condition:education2, adjust="tukey")
+ems
+
+# Checking Assumptions 
+plot(modg)
+errorG <- residuals(modg)
+plot(errorG)
+hist(errorG)
+# Assumptions are met
+
+
+## sixth analysis
+
+
+# same process as the the first two analysis
+
+contrasts(df_slow_control$condition)
+
+# Checking assuption of normality
+e1071::skewness(df_slow_control$ave_rt)
+e1071::skewness(df_slow_control$ave_rt_adj)
+e1071::skewness(df_slow$ave_rt_adj)
+e1071::skewness(df_control$ave_rt_adj)
+
+# Adjusting skewness
+df_slow <- df_slow %>%
+  mutate(ave_rt_adj = log(ave_rt, 10))
+df_slow_control <- df_slow_control %>%
+  mutate(ave_rt_adj = log(ave_rt, 10))
+df_control <- df_control %>%
+  mutate(ave_rt_adj = log(ave_rt, 10))
+e1071::skewness(df_slow_control$ave_rt)
+e1071::skewness(df_slow_control$ave_rt_adj)
+e1071::skewness(df_slow$ave_rt_adj)
+e1071::skewness(df_control$ave_rt_adj)
+
+
+# Checking the assumption of same variance which is not met
+test_var <- var.test(ave_rt_adj ~ condition, data = df_slow_control)
+test_var #p = .045
+
+
+plot_raincloud(df_slow_control, ave_rt, groups = condition) + 
+  labs(title = "No instruction vs. Thinking Slow", y="Average response time", x="Conditions")
+
+t.test(df_slow$ave_rt_adj, df_control$ave_rt_adj, alternative = "two.sided", var.equal = TRUE)
+mean(df_slow$ave_rt)
+psych::cohen.d(df_slow_control$ave_rt_adj, df_slow_control$condition)
+sample_sd(df_slow$ave_rt_adj)
+sample_sd(df_control$ave_rt_adj)
+min(df_slow_control$ave_rt_adj)
+max(df_slow_control$ave_rt_adj)
+
+

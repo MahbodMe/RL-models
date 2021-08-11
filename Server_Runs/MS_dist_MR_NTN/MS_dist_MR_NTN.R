@@ -1,0 +1,254 @@
+
+
+
+### Required packges 
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(nnet)
+library(DEoptim)
+library(abind)
+library(parallel)
+
+
+### Required functions
+source("estimation_models.R")
+source("packs_funs.R")
+source("simulation_models.R")
+
+
+
+MS_df <- read.csv("https://github.com/speekenbrink-lab/data/raw/master/Speekenbrink_Konstantinidis_2015.csv")
+MS_pe <- readRDS("MS_par_est.RDS")
+
+
+df <- subset(MS_df, MS_df$cond == "ntn")
+ids <- unique(df$id2)
+
+
+MS_pe_mat <- array(NA, dim = c(12,8,length(ids)))
+
+for (i in 1:length(ids)){
+  MS_pe_mat[,,i] <- MS_pe[,,ids[i]]
+}
+
+
+n_sim <- 100
+nm <- 12
+
+seeds <- sample(1:1000, n_sim)
+
+
+agent_sims <- c("sym_sim", "asym_rpe_sim", "asym_reward_sim", "sym_auto_sim", 
+                "asym_rpe_auto_sim", "asym_reward_auto_sim","ucb_sim", 
+                "ucb_asym_rpe_sim", "ucb_asym_reward_sim", "ucb_auto_sim",
+                "ucb_asym_rpe_auto_sim", "ucb_asym_reward_auto_sim")
+
+rewards_df <- readRDS("MS_rewards_NTN.RDS")
+
+
+arm <- 4
+nt <- 100
+innovation_term <- 16
+
+mat_mr <- array(NA, c(12, 12, 4))
+
+colnames(mat_mr) <- c("model_1", "model_2", "model_3", "model_4", "model_5",
+                      "model_6", "model_7", "model_8", "model_9", "model_10",
+                      "model_11", "model_12")
+rownames(mat_mr) <- c("agent_1", "agent_2", "agent_3", "agent_4", "agent_5",
+                      "agent_6", "agent_7", "agent_8", "agent_9", "agent_10",
+                      "agent_11", "agent_12") 
+
+
+mod_id <- function(X){
+  print(X)
+  for (i2 in 1:4){
+    set.seed(seeds[X])
+    rewards <- rewards_df[,,i2]
+    
+    par1 <- c(sample_log_dist(MS_pe_mat[1,1,],1), sample_beta_dist(MS_pe_mat[1,2,],1))
+    
+    par2 <- c(sample_log_dist(MS_pe_mat[2,1,],1), sample_beta_dist(MS_pe_mat[2,2,],1),
+              sample_beta_dist(MS_pe_mat[2,3,],1))
+    
+    par3 <- c(sample_log_dist(MS_pe_mat[3,1,],1), sample_beta_dist(MS_pe_mat[3,2,],1),
+              sample_beta_dist(MS_pe_mat[3,3,],1))
+    
+    par4 <- c(sample_log_dist(MS_pe_mat[4,1,],1), sample_beta_dist(MS_pe_mat[4,2,],1),
+              sample_beta_dist(MS_pe_mat[4,3,],1), sample_norm_dist(MS_pe_mat[4,4,],1))
+    
+    par5 <- c(sample_log_dist(MS_pe_mat[5,1,],1), sample_beta_dist(MS_pe_mat[5,2,],1),
+              sample_beta_dist(MS_pe_mat[5,3,],1), sample_beta_dist(MS_pe_mat[5,4,],1),
+              sample_norm_dist(MS_pe_mat[5,5,],1))
+    
+    par6 <- c(sample_log_dist(MS_pe_mat[6,1,],1), sample_beta_dist(MS_pe_mat[6,2,],1),
+              sample_beta_dist(MS_pe_mat[6,3,],1), sample_beta_dist(MS_pe_mat[6,4,],1),
+              sample_norm_dist(MS_pe_mat[6,5,],1))
+    
+    par7 <- c(sample_log_dist(MS_pe_mat[7,1,],1),
+              sample_log_dist(MS_pe_mat[7,4,],1),  sample_log_dist(MS_pe_mat[7,5,],1))
+    par7 <- append(par7, innovation_term, after = 1)
+    
+    
+    par8 <- c(sample_log_dist(MS_pe_mat[8,1,],1), sample_log_dist(MS_pe_mat[8,4,],1),
+              sample_log_dist(MS_pe_mat[8,5,],1), sample_log_dist(MS_pe_mat[8,6,],1))
+    par8 <- append(par8, innovation_term, after = 1)
+    
+    
+    
+    par9 <- c(sample_log_dist(MS_pe_mat[9,1,],1), sample_log_dist(MS_pe_mat[9,4,],1),
+              sample_log_dist(MS_pe_mat[9,5,],1), sample_log_dist(MS_pe_mat[9,6,],1))
+    par9 <- append(par9, innovation_term, after = 2)
+    
+    
+    par10 <- c(sample_log_dist(MS_pe_mat[10,1,],1), sample_log_dist(MS_pe_mat[10,4,],1),
+               sample_log_dist(MS_pe_mat[10,5,],1), sample_beta_dist(MS_pe_mat[10,6,],1),
+               sample_norm_dist(MS_pe_mat[10,7,],1))
+    par10 <- append(par10, innovation_term, after = 2)
+    
+    
+    par11 <- c(sample_log_dist(MS_pe_mat[11,1,],1), sample_log_dist(MS_pe_mat[11,4,],1),
+               sample_log_dist(MS_pe_mat[11,5,],1), sample_log_dist(MS_pe_mat[11,6,],1),
+               sample_beta_dist(MS_pe_mat[11,7,],1), sample_norm_dist(MS_pe_mat[11,8,],1))
+    par11 <- append(par11, innovation_term, after = 2)
+    
+    par12 <- c(sample_log_dist(MS_pe_mat[12,1,],1), sample_log_dist(MS_pe_mat[12,4,],1),
+               sample_log_dist(MS_pe_mat[12,5,],1), sample_log_dist(MS_pe_mat[12,6,],1),
+               sample_beta_dist(MS_pe_mat[12,7,],1), sample_norm_dist(MS_pe_mat[12,8,],1))
+    par12 <- append(par12, innovation_term, after = 2)
+    
+    pars <- list(par1, par2, par3, par4, par5, par6, par7, par8, par9, 
+                 par10, par11, par12)
+    
+    dat <- sim_behav_data_csv(rewards, agent_sims, pars, arm, nt)
+    
+    # model 1
+    est <- find_the_best_pars(c(.0001, .0001), c(100, 1), sym_negLogLik_DE, dat, nm, nt)$value
+    
+    for (i in 1:nm){
+      mat_mr[i,1, i2] <- as.vector(unlist(est[i]))
+    }
+    
+    # model 2
+    est <- find_the_best_pars(c(0.0001,0.0001,0.0001), c(10, 1, 1), asym_rpe_negLogLik_DE, dat, nm, nt)$value
+    
+    for (i in 1:nm){
+      mat_mr[i,2, i2] <- as.vector(unlist(est[i]))
+    }
+    
+    # model 3
+    est <- find_the_best_pars(c(0.0001,0.0001,0.0001), c(10, 1, 1), asym_reward_negLogLik_DE, dat, nm, nt)$value
+    
+    for (i in 1:nm){
+      mat_mr[i,3, i2] <- as.vector(unlist(est[i]))
+    }
+    
+    
+    
+    # model 4
+    est <- find_the_best_pars(c(0.0001,0.0001,0.0001,-100), c(10, 1, 1,100), sym_auto_negLogLik_DE, dat, nm, nt)$value
+    
+    for (i in 1:nm){
+      mat_mr[i,4, i2] <- as.vector(unlist(est[i]))
+    }
+    
+    
+    
+    # model 5
+    est <- find_the_best_pars(c(0.0001,0.0001,0.0001, 0.0001, -100), c(10, 1, 1, 1, 100), asym_rpe_auto_negLogLik_DE, dat, nm, nt)$value
+    
+    for (i in 1:nm){
+      mat_mr[i,5, i2] <- as.vector(unlist(est[i]))
+    }
+    
+    
+    
+    # model 6
+    est <- find_the_best_pars(c(0.0001,0.0001,0.0001, 0.0001, -100), c(10, 1, 1, 1, 100), asym_reward_auto_negLogLik_DE, dat, nm, nt)$value
+    
+    for (i in 1:nm){
+      mat_mr[i,6, i2] <- as.numeric(unlist(est[i]))
+    }
+    
+    
+    # model 7
+    est <- find_the_best_pars(c(0, -100, 0.00001, 0.0001, 0.0001), c(10 , 100, 2000, 100, 100), ucb_negLogLik_DE, dat, nm, nt)$value
+    
+    for (i in 1:nm){
+      mat_mr[i,7, i2] <- as.numeric(unlist(est[i]))
+    }
+    
+    
+    # model 8
+    est <- find_the_best_pars(c(0, -100, 0.0001, 0.0001, 0.0001, 0.0001), c(10 , 100, 2000, 100, 100, 100), ucb_asym_rpe_negLogLik_DE, dat, nm, nt)$value
+    
+    for (i in 1:nm){
+      mat_mr[i,8, i2] <- as.numeric(unlist(est[i]))
+    }
+    
+    
+    # model 9
+    est <- find_the_best_pars(c(0, -100, 0.00001, 0.0001, 0.0001, 0.0001), c(10 , 100, 2000, 100, 100, 100), ucb_asym_reward_negLogLik_DE, dat, nm, nt)$value
+    
+    for (i in 1:nm){
+      mat_mr[i,9, i2] <- as.numeric(unlist(est[i]))
+    }
+    
+    
+    # model 10
+    est <- find_the_best_pars(c(0 , -100, 0.00001, 0.0001, 0.0001, 0.0001, -100), c(10 , 100, 2000, 100, 100, 1, 100), ucb_auto_negLogLik_DE, dat, nm, nt)$value
+    
+    for (i in 1:nm){
+      mat_mr[i,10, i2] <- as.numeric(unlist(est[i]))
+    }
+    
+    
+    # model 11
+    est <- find_the_best_pars(c(0 , -100, 0.00001, 0.00001, 0.0001, 0.0001, 0.0001, -100), c(10 , 100, 2000, 100, 100, 100, 1, 100), ucb_asym_rpe_auto_negLogLik_DE, dat, nm, nt)$value
+    
+    for (i in 1:nm){
+      mat_mr[i,11, i2] <- as.numeric(unlist(est[i]))
+    }
+    
+    
+    
+    # model 12
+    est <- find_the_best_pars(c(0 , -100, 0.00001, 0.00001, 0.0001, 0.0001, 0.0001, -100), c(10 , 100, 2000, 100, 100, 100, 1, 100), ucb_asym_reward_auto_negLogLik_DE, dat, nm, nt)$value
+    
+    for (i in 1:nm){
+      mat_mr[i,12, i2] <- as.numeric(unlist(est[i]))
+    }
+  }
+  return(mat_mr)
+}
+
+seed_index <- rep(1:60, 1)
+
+result <- mclapply(seed_index, mod_id, mc.preschedule = FALSE, mc.cores = 20)
+
+mr <- array(1, dim = c(12, 12, 4, 60))
+
+
+for (i in 1:length(seed_index)){
+  mr[,,,i] <- array(unlist(result[[i]]), dim = c(12, 12, 4))
+}
+
+saveRDS(mr, "test.RDS")
+mr2 <- array(NA, dim = c(60,12,12,4))
+
+for (i in 1:nm){
+  for (i2 in 1:length(seed_index)){
+    for (i3 in 1:4){
+      mr2[i2,,i,i3]<- mr[i,,i3,i2]
+    }
+  }
+}
+
+
+colnames(mr2) <- c("model_1", "model_2", "model_3", "model_4", "model_5",
+                   "model_6", "model_7", "model_8", "model_9", "model_10",
+                   "model_11", "model_12")
+
+
+saveRDS(mr2, "MS_dist_NTN_MR_ngll.RDS")

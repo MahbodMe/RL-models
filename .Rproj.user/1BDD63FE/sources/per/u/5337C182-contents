@@ -1,0 +1,110 @@
+
+### Required packges 
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(nnet)
+library(DEoptim)
+library(abind)
+library(parallel)
+
+
+### Required functions
+source("estimation_models.R")
+source("packs_funs.R")
+
+
+
+df <- read.csv("https://github.com/speekenbrink-lab/data/raw/master/Speekenbrink_Konstantinidis_2015.csv")
+
+np <- length(unique(df$id2))
+
+nm <- 12
+arm <- 4
+innovation_term <- 16
+
+mat_value <- rep(NA, nm)
+mat_par <- matrix(NA, nm, 8)
+
+
+mod_MC <- function(X){
+
+  print(X)
+  
+
+  est <- c(1:12)
+  est <- est*(10^X)
+
+  mat_value[1] <- as.vector(unlist(est[1]))
+
+  mat_value[2] <- as.vector(unlist(est[2]))
+
+  mat_value[3]<- as.vector(unlist(est[3]))
+
+  
+  # model 4
+
+  mat_value[4] <- as.vector(unlist(est[4]))
+
+  
+  
+  # model 5
+  mat_value[5] <- as.vector(unlist(est[5]))
+
+  
+  
+  # model 6
+  mat_value[6] <- as.vector(unlist(est[6]))
+
+  
+  # model 7
+  mat_value[7] <- as.vector(unlist(est[7]))
+
+  # model 8
+  mat_value[8] <- as.vector(unlist(est[8]))
+
+  # model 9
+  mat_value[9] <- as.vector(unlist(est[9]))
+
+  
+  # model 10
+  mat_value[10]<- as.vector(unlist(est[10]))
+
+  
+  # model 11
+  mat_value[11] <- as.vector(unlist(est[11]))
+
+  # model 12
+  mat_value[12] <- as.vector(unlist(est[12]))
+
+  return(mat_value)
+}
+
+np <- 20
+ids <- c(1:20)
+result <- mclapply(ids, mod_MC, mc.preschedule = FALSE, mc.cores = 2)
+
+
+ngll_values <- matrix(NA, np, nm)
+colnames(ngll_values) <- c("model_1", "model_2", "model_3", "model_4",
+                           "model_5", "model_6", "model_7", "model_8",
+                           "model_9", "model_10", "model_11", "model_12")
+
+
+for (i in 1:length(ids)){
+  ngll_values[i,] <- array(unlist(result[[i]]), dim = c(1, nm))
+}
+
+
+
+
+par_ests <- array(NA, c(nm, 8, np))
+for (i in 1:length(ids)){
+  par_ests[,,i] <- array(unlist(result[[i]]$p), dim = c(nm, 8))
+}
+
+
+
+saveRDS(ngll_values, "MS_values.RDS")
+saveRDS(par_ests,"MS_par_est.RDS")
+

@@ -1,0 +1,51 @@
+load("Payoffs.DynamicIGT.Rdata")
+
+
+MS_rewards_NTS <- array(NA, c(200,5,4)) 
+MS_rewards_NTS[,1,] <- 1:200
+
+for (i in 1:4){
+  MS_rewards_NTS[,2:5,i] <- array(unlist(payof.dyn.IGT$NTS[i]), c(200,4))
+}
+
+colnames(MS_rewards_NTS) <- c("trial", "A1", "A2", "A3", "A4")
+
+saveRDS(MS_rewards_NTS, "MS_rewards_NTS.RDS")
+
+MS_rewards_NTN <- array(NA, c(200,5,4)) 
+MS_rewards_NTN[,1,] <- 1:200
+
+for (i in 1:4){
+  MS_rewards_NTN[,2:5,i] <- array(unlist(payof.dyn.IGT$NTN[i]), c(200,4))
+}
+
+colnames(MS_rewards_NTN) <- c("trial", "A1", "A2", "A3", "A4")
+
+saveRDS(MS_rewards_NTN, "MS_rewards_NTN.RDS")
+
+
+MS_rewards_TS <- array(NA, c(200,5,4)) 
+MS_rewards_TS[,1,] <- 1:200
+
+for (i in 1:4){
+  MS_rewards_TS[,2:5,i] <- array(unlist(payof.dyn.IGT$TS[i]), c(200,4))
+}
+
+colnames(MS_rewards_TS) <- c("trial", "A1", "A2", "A3", "A4")
+
+
+saveRDS(MS_rewards_TS, "MS_rewards_TS.RDS")
+
+
+MS_rewards_TN <- array(NA, c(200,5,4)) 
+MS_rewards_TN[,1,] <- 1:200
+
+for (i in 1:4){
+  MS_rewards_TN[,2:5,i] <- array(unlist(payof.dyn.IGT$TN[i]), c(200,4))
+}
+
+colnames(MS_rewards_TN) <- c("trial", "A1", "A2", "A3", "A4")
+
+
+saveRDS(MS_rewards_TN, "MS_rewards_TN.RDS")
+
