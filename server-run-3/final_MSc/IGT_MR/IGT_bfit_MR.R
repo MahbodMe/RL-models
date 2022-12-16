@@ -1,0 +1,340 @@
+
+### Required packges 
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(nnet)
+library(DEoptim)
+library(abind)
+library(parallel)
+
+
+### Required functions
+source("estimation_models.R")
+source("packs_funs.R")
+source("simulation_IGT_models.R")
+
+
+
+IGT_df <- readRDS("IGT_mat.RDS")
+IGT_pe <- readRDS("IGT_par_est.RDS")
+IGT_ngll_df <- readRDS("IGT_values.RDS")
+# df <- subset(IGT_df, IGT_df$reward_scheme == 1)
+df <- IGT_df
+ids <- unique(df$ID)
+
+
+IGT_pe_mat <- array(NA, dim = c(12,9,length(ids)))
+IGT_ngll <- matrix(NA, length(ids), 12)
+
+for (i in 1:length(ids)){
+  IGT_pe_mat[,,i] <- IGT_pe[,,ids[i]]
+  IGT_ngll[i,] <- IGT_ngll_df[ids[i],]
+}
+
+par_num <- c(2,3,3,4,5,5,5,6,6,7,8,8)
+m_bic <- matrix(NA,length(ids) , 14)
+m_aic <- matrix(NA,length(ids) , 14)
+
+
+aic_mins <- rep(0, 12)
+bic_mins <- rep(0, 12)
+
+for (id in 1:length(ids)){
+  m_aic[id,1:12 ] <- IGT_ngll[id, ]*2 + 2*par_num
+  m_bic[id,1:12 ]<- IGT_ngll[id,]*2 + log(100)*par_num
+  m_aic[id,13] <- which.min(m_aic[id, 1:12])
+  m_bic[id,13] <- which.min(m_bic[id, 1:12])
+  aic_mins[which.min(m_aic[id, 1:12])] <- aic_mins[which.min(m_aic[id, 1:12])] + 1
+  bic_mins[which.min(m_bic[id, 1:12])] <- bic_mins[which.min(m_bic[id, 1:12])] + 1
+  m_aic[id,14] <- id
+  m_bic[id,14] <- id
+}
+
+auto_pe <- rbind(subset(m_aic, m_aic[,13] %in% c(1:12)),
+                 subset(m_bic, m_bic[,13] %in% c(1:12)))
+auto_pe <- unique(auto_pe[,13:14])
+
+# m_aic[,c(4:6,10:12)] <- Inf 
+# m_bic[,c(4:6,10:12)] <- Inf
+# 
+# aic_mins <- rep(0, 12)
+# bic_mins <- rep(0, 12)
+# 
+# for (id in 1:length(ids)){
+#   m_aic[id,13] <- which.min(m_aic[id, 1:12])
+#   m_bic[id,13] <- which.min(m_bic[id, 1:12])
+#   aic_mins[which.min(m_aic[id, 1:12])] <- aic_mins[which.min(m_aic[id, 1:12])] + 1
+#   bic_mins[which.min(m_bic[id, 1:12])] <- bic_mins[which.min(m_bic[id, 1:12])] + 1
+#   m_aic[id,14] <- id
+#   m_bic[id,14] <- id
+# }
+# 
+# 
+# norm_pe <- rbind(subset(m_aic, m_aic[,13] %in% c(1:3,7:9)),
+#                  subset(m_bic, m_bic[,13] %in% c(1:3,7:9)))
+# 
+# 
+# norm_pe <- unique(norm_pe[,13:14])
+
+pe <- auto_pe
+
+
+
+n_sim <- 110
+nm <- 12
+
+seeds <- sample(1:1000, n_sim)
+
+
+agent_sims <- c("sym_sim", "asym_rpe_sim", "asym_reward_sim", "sym_auto_sim", 
+                "asym_rpe_auto_sim", "asym_reward_auto_sim","ucb_sim", 
+                "ucb_asym_rpe_sim", "ucb_asym_reward_sim", "ucb_auto_sim",
+                "ucb_asym_rpe_auto_sim", "ucb_asym_reward_auto_sim")
+
+
+r1 <- readRDS("IGT_rewards//rewards_IGT_1.RDS")
+r2 <- readRDS("IGT_rewards//rewards_IGT_2.RDS")
+r3 <- readRDS("IGT_rewards//rewards_IGT_3.RDS")
+df[,4] <- df[,4]/100
+r1[,2:5] <- r1[,2:5]/100
+r2[,2:5] <- r2[,2:5]/100
+r3[,2:5] <- r3[,2:5]/100
+
+es <- rep(0, 3)
+for (i in 2:5){
+  es <- es + c(var(r1[,i]), var(r2[1:10,i]), var(r3[,i]))
+}
+es <- es/4
+
+
+arm <- 4
+nt <- 100
+
+
+mat_mr <- array(NA, dim = c(12, 12, 3))
+
+colnames(mat_mr) <- c("model_1", "model_2", "model_3", "model_4", "model_5",
+                      "model_6", "model_7", "model_8", "model_9", "model_10",
+                      "model_11", "model_12")
+rownames(mat_mr) <- c("agent_1", "agent_2", "agent_3", "agent_4", "agent_5",
+                      "agent_6", "agent_7", "agent_8", "agent_9", "agent_10",
+                      "agent_11", "agent_12") 
+
+
+mod_id <- function(X){
+  print(X)
+  
+  for (env in 1:3){
+    set.seed(seeds[X])
+    
+    if (env == 1){e <- es[1]
+    rw <- r1}
+    if (env == 2){e <- es[2]
+    rw <- r2}
+    if (env == 3){e <- es[3]
+    rw <- r3}
+    
+    lim_intial <- c(min(rw[,2:5]),max(rw[,2:5]))
+    lim_phi <- diff(lim_intial)*10
+    lim_phi <- c(-1*lim_phi, lim_phi)
+    lim_intial[2] <- lim_intial[1]*(-1)
+    lim_inv_temp <- lim_intial
+    # lim_intial <- c(0, 0.000000001)
+    variance_limit <- e*10
+    
+    
+    par1 <- subset(pe, pe[,1] == 1)
+    par1 <- sample(par1[,2],1)
+    par1 <- IGT_pe_mat[1,1:3,par1]
+    
+    par2 <- subset(pe, pe[,1] == 2)
+    par2 <- sample(par2[,2],1)
+    par2 <- IGT_pe_mat[2,1:4,par2]
+    
+    par3 <- subset(pe, pe[,1] == 3)
+    par3 <- sample(par3[,2],1)
+    par3 <- IGT_pe_mat[3,1:4,par3]
+    
+    par4 <- subset(pe, pe[,1] == 4)
+    par4 <- sample(par4[,2],1)
+    par4 <- IGT_pe_mat[4,1:5,par4]
+    
+    par5 <- subset(pe, pe[,1] == 5)
+    par5 <- sample(par5[,2],1)
+    par5 <- IGT_pe_mat[5,1:6,par5]
+    
+    par6 <- subset(pe, pe[,1] == 6)
+    par6 <- sample(par6[,2],1)
+    par6 <- IGT_pe_mat[6,1:6,par6]
+    
+    par7 <- subset(pe, pe[,1] == 7)
+    par7 <- sample(par7[,2],1)
+    par7 <- IGT_pe_mat[7,1:6,par7]
+    
+    par8 <- subset(pe, pe[,1] == 8)
+    par8 <- sample(par8[,2],1)
+    par8 <- IGT_pe_mat[8,1:7,par8]
+    
+    par9 <- subset(pe, pe[,1] == 9)
+    par9 <- sample(par9[,2],1)
+    par9 <- IGT_pe_mat[9,1:7,par9]
+    
+    
+    par10 <- subset(pe, pe[,1] == 10)
+    par10 <- sample(par10[,2],1)
+    par10 <- IGT_pe_mat[10,1:8,par10]
+    
+    
+    par11 <- subset(pe, pe[,1] == 11)
+    par11 <- sample(par11[,2],1)
+    par11 <- IGT_pe_mat[11,1:9,par11]
+    
+    
+    par12 <- subset(pe, pe[,1] == 12)
+    par12 <- sample(par12[,2],1)
+    par12 <- IGT_pe_mat[12,1:9,par12]
+    
+    
+    
+    pars <- list(par1, par2, par3, par4, par5, par6, par7, par8, par9, 
+                 par10, par11, par12)
+    
+    dat <- sim_behav_data_csv(rw, agent_sims, pars, arm, nt)
+    
+    # model 1
+    est <-find_the_best_pars(c(.00001, .00001, lim_intial[1]), c(lim_intial[2], 1, lim_intial[2]), sym_negLogLik_DE, dat, nm, nt)$value
+    
+    for (i in 1:nm){
+      mat_mr[i,1,env] <- as.vector(unlist(est[i]))
+    }
+    
+    # model 2
+    est <-find_the_best_pars(c(0.00001,0.00001,0.00001,  lim_intial[1]), c(lim_intial[2], 1, 1,  lim_intial[2]), asym_rpe_negLogLik_DE, dat, nm, nt)$value
+    
+    for (i in 1:nm){
+      mat_mr[i,2,env] <- as.vector(unlist(est[i]))
+    }
+    
+    # model 3
+    est <-find_the_best_pars(c(0.00001,0.00001,0.00001,  lim_intial[1]), c(lim_intial[2], 1, 1,  lim_intial[2]), asym_reward_negLogLik_DE, dat, nm, nt)$value
+    
+    for (i in 1:nm){
+      mat_mr[i,3,env] <- as.vector(unlist(est[i]))
+    }
+    
+    
+    
+    # model 4
+    est <-find_the_best_pars(c(0.00001,0.00001,0.00001,lim_phi[1],  lim_intial[1]), c(lim_intial[2], 1, 1,lim_phi[2],  lim_intial[2]), sym_auto_negLogLik_DE, dat, nm, nt)$value
+    
+    for (i in 1:nm){
+      mat_mr[i,4,env] <- as.vector(unlist(est[i]))
+    }
+    
+    
+    
+    # model 5
+    est <-find_the_best_pars(c(0.00001,0.00001,0.00001, 0.00001, lim_phi[1],  lim_intial[1]), c(lim_intial[2], 1, 1, 1, lim_phi[2],  lim_intial[2]), asym_rpe_auto_negLogLik_DE, dat, nm, nt)$value
+    
+    for (i in 1:nm){
+      mat_mr[i,5,env] <- as.vector(unlist(est[i]))
+    }
+    
+    
+    
+    # model 6
+    est <- find_the_best_pars(c(0.00001,0.00001,0.00001, 0.00001, lim_phi[1],  lim_intial[1]), c(lim_inv_temp[2], 1, 1, 1, lim_phi[2],  lim_intial[2]), asym_reward_auto_negLogLik_DE, dat, nm, nt)$value
+    
+    for (i in 1:nm){
+      mat_mr[i,6,env] <- as.vector(unlist(est[i]))
+    }
+    
+    
+    # model 7
+    est <- find_the_best_pars(c(.00001,  lim_intial[1], 0.00001, (e-.000001), 0.00001, 0.00001), c(lim_inv_temp[2],  lim_intial[2], variance_limit, e, variance_limit, lim_inv_temp[2]), ucb_negLogLik_DE, dat, nm, nt)$value
+    
+    for (i in 1:nm){
+      mat_mr[i,7,env] <- as.vector(unlist(est[i]))
+    }
+    
+    
+    # model 8
+    est <- find_the_best_pars(c(.00001,  lim_intial[1], 0.00001, (e-.000001), 0.00001, 0.00001, 0.00001), c(lim_inv_temp[2] ,  lim_intial[2], variance_limit, e, variance_limit, variance_limit, lim_inv_temp[2]), ucb_asym_rpe_negLogLik_DE, dat, nm, nt)$value
+    
+    for (i in 1:nm){
+      mat_mr[i,8,env] <- as.vector(unlist(est[i]))
+    }
+    
+    
+    # model 9
+    est <- find_the_best_pars(c(.00001,  lim_intial[1], 0.00001, (e-.000001), 0.00001, 0.00001, 0.00001), c(lim_inv_temp[2],  lim_intial[2], variance_limit, e, variance_limit, variance_limit, lim_inv_temp[2]), ucb_asym_reward_negLogLik_DE, dat, nm, nt)$value
+    
+    for (i in 1:nm){
+      mat_mr[i,9,env] <- as.vector(unlist(est[i]))
+    }
+    
+    
+    # model 10
+    est <- find_the_best_pars(c(.00001,  lim_intial[1], 0.00001, (e-.000001), 0.00001, 0.00001, 0.00001, 
+                                lim_phi[1]), c(lim_inv_temp[2],  lim_intial[2], variance_limit, e, variance_limit, lim_inv_temp[2], 1, lim_phi[2]), ucb_auto_negLogLik_DE, dat, nm, nt)$value
+    
+    for (i in 1:nm){
+      mat_mr[i,10,env] <- as.vector(unlist(est[i]))
+    }
+    
+    
+    # model 11
+    est <- find_the_best_pars(c(.00001,  lim_intial[1], 0.00001, (e-.000001), 0.00001, 0.00001, 0.00001, 0.00001,
+                                lim_phi[1]), c(lim_inv_temp[2] ,  lim_intial[2], variance_limit, e, variance_limit, variance_limit, lim_inv_temp[2], 1, lim_phi[2]), ucb_asym_rpe_auto_negLogLik_DE, dat, nm, nt)$value
+    
+    for (i in 1:nm){
+      mat_mr[i,11,env] <- as.vector(unlist(est[i]))
+    }
+    
+    
+    
+    # model 12
+    est <- find_the_best_pars(c(.00001,  lim_intial[1], 0.00001, (e-.000001), 0.00001, 0.00001, 0.00001, 0.00001, 
+                                lim_phi[1]), c(lim_inv_temp[2] ,  lim_intial[2], variance_limit, e, variance_limit, variance_limit, lim_inv_temp[2], 1, lim_phi[2]), ucb_asym_reward_auto_negLogLik_DE, dat, nm, nt)$value
+    
+    for (i in 1:nm){
+      mat_mr[i,12,env] <- as.vector(unlist(est[i]))
+    }
+  }
+    
+  return(mat_mr)
+}
+
+
+seed_index <- rep(1:110, 1)
+
+result <- mclapply(seed_index, mod_id, mc.preschedule = FALSE, mc.cores = 40)
+
+mr <- array(1, dim = c(12,12, 3, 110))
+
+
+for (i in 1:length(seed_index)){
+  mr[,,,i] <- array(unlist(result[[i]]), dim = c(12, 12, 3))
+}
+
+
+saveRDS(mr, "test.RDS")
+mr2 <- array(NA, dim = c(110,12,12,3))
+
+for (i in 1:nm){
+  for (i2 in 1:length(seed_index)){
+    for (i3 in 1:3){
+      mr2[i2,,i,i3]<- mr[i,,i3,i2]
+    }
+  }
+}
+
+
+colnames(mr2) <- c("model_1", "model_2", "model_3", "model_4", "model_5",
+                   "model_6", "model_7", "model_8", "model_9", "model_10",
+                   "model_11", "model_12")
+
+
+saveRDS(mr2, "IGT_MR_bfit_scheme.RDS")
+
