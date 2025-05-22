@@ -1,184 +1,58 @@
-# MSc Thesis project
+# MSc Thesis Project: Asymmetric Belief Updating in Reinforcement Learning
 
-### 12 RL models
+This repository contains the full codebase and manuscript for my MSc thesis, completed at University College London under the supervision of Maarten Speekenbrink. The project investigates whether observed learning biases in instrumental tasks reflect real asymmetries in belief updating or arise from modeling artifacts, such as initial expectations or decision autocorrelation.
 
-| Models | Learning Rate | Autocorrelation | Decision Rule | Model name in code | Number of Free Parameters | 
-|---------------|-----------|-----------|-----------|-----------|-----------|
-|Model 1| Q_learning (Symmetric) | NA | SoftMax | sym_sim()| 2 |
-|Model 2| Q_learning (Asymmetric-RPE) | NA | SoftMax | asym_rpe_sim()| 3 |
-|Model 3| Q_learning (Asymmetric-Reward) | NA | SoftMax | asym_reward_sim()| 3 |
-|Model 4| Q_learning (Symmetric) | Choice Trace | SoftMax | sym_auto_sim()| 4 |
-|Model 5| Q_learning (Asymmetric-Reward) | Choice Trace | SoftMax | asym_rpe_auto_sim()| 5 |
-|Model 6| Q_learning (Asymmetric-Reward) |Choice TraceNA | SoftMax | asym_reward_auto_sim()| 5 |
-|Model 7| Kalman filter (Symmetric) | NA | UCB + Exploration Bonus | ucb_sim()| 5 |
-|Model 8| Kalman filter (Asymmetric-RPE) | NA | UCB + Exploration Bonus | ucb_asym_rpe_sim()| 6 |
-|Model 9| Kalman filter (Asymmetric-Reward) | NA | UCB + Exploration Bonus | ucb_asym_reward_sim()| 6 |
-|Model 10| Kalman filter (Symmetric) | Choice Trace | UCB + Exploration Bonus | ucb_sim()| 7 |
-|Model 11| Kalman filter (Asymmetric-RPE) | Choice Trace | UCB + Exploration Bonus | ucb_asym_rpe_sim()| 8 |
-|Model 12| Kalman filter (Asymmetric-Reward) | Choice Trace | UCB + Exploration Bonus | ucb_asym_reward_sim()| 8 |
+## Key Contributions
 
+* Simulated and fit **12 reinforcement learning models** across Q-learning and Kalman filter families.
+* Evaluated models using AIC, BIC, likelihood ratio tests, and binomial comparisons.
+* Used the **DEoptim** package for global parameter estimation across all models.
+* Analyzed **multiple open behavioral datasets**, including those used in prior studies on learning biases.
+* Demonstrated that several observed asymmetries in past literature can be accounted for by **expectation priors** and **autocorrelated choice strategies**, rather than true asymmetric learning.
 
-* Agent simulation functions for the 6 Q_learning models (Model 1 to Model 6) are in Q_learning_models.R
-* Agent simulation functions for the 6 Kalman filter models (Model 7 to Model 12) are in Kf_UCB_models.R
+## RL Models Implemented
 
-#### Parameter estimation is conducted using the DEoptim package 
-* Parameter estimation functions for the 6 Q_learning models (Model 1 to Model 6) are in par_est_Q_learning.R
-* Parameter estimation functions for the 6 Kalman filter models (Model 7 to Model 12) are in par_est_UCB.R
+| Model | Learning Rate                     | Autocorrelation | Decision Rule | Function Name             | Free Parameters |
+| ----- | --------------------------------- | --------------- | ------------- | ------------------------- | --------------- |
+| 1     | Q-learning (Symmetric)            | –               | Softmax       | sym\_sim()                | 2               |
+| 2     | Q-learning (Asymmetric-RPE)       | –               | Softmax       | asym\_rpe\_sim()          | 3               |
+| 3     | Q-learning (Asymmetric-Reward)    | –               | Softmax       | asym\_reward\_sim()       | 3               |
+| 4     | Q-learning (Symmetric)            | Choice Trace    | Softmax       | sym\_auto\_sim()          | 4               |
+| 5     | Q-learning (Asymmetric-RPE)       | Choice Trace    | Softmax       | asym\_rpe\_auto\_sim()    | 5               |
+| 6     | Q-learning (Asymmetric-Reward)    | Choice Trace    | Softmax       | asym\_reward\_auto\_sim() | 5               |
+| 7     | Kalman Filter (Symmetric)         | –               | UCB + Bonus   | ucb\_sim()                | 5               |
+| 8     | Kalman Filter (Asymmetric-RPE)    | –               | UCB + Bonus   | ucb\_asym\_rpe\_sim()     | 6               |
+| 9     | Kalman Filter (Asymmetric-Reward) | –               | UCB + Bonus   | ucb\_asym\_reward\_sim()  | 6               |
+| 10    | Kalman Filter (Symmetric)         | Choice Trace    | UCB + Bonus   | ucb\_sim()                | 7               |
+| 11    | Kalman Filter (Asymmetric-RPE)    | Choice Trace    | UCB + Bonus   | ucb\_asym\_rpe\_sim()     | 8               |
+| 12    | Kalman Filter (Asymmetric-Reward) | Choice Trace    | UCB + Bonus   | ucb\_asym\_reward\_sim()  | 8               |
 
+Model code is implemented across `Q_learning_models.R`, `Kf_UCB_models.R`, and parameter estimation functions in `par_est_Q_learning.R` and `par_est_UCB.R` using **DEoptim**.
 
-\* For the Kalman filter estimation parameters, the innovation_term value is fixed to the environment's actual value.
+## Data Simulation
 
+Simulation functions generate behavior from model predictions using custom reward environments. Example environment and behavioral data generation functions are provided.
 
-### Rewards are generated according to the following function
-``` 
-reward_generator <- function(seed, nt, no, error_term, innovation_term, mu0){
-  
-  set.seed(seed) # set the random seed to replicate these results exactly
-  mu <- matrix(0.0,nrow=nt,ncol=no) # to store the time-varying means
-  mu[1,] <- mu0 # initialize the means for t=1
-  for(t in 2:nt) {
-    mu[t,] <- mu[t-1,] + rnorm(no,mean=0,sd=innovation_term) # compute mean at t based on mean at t-1
-  }
-  rewards <- mu + rnorm(length(mu),mean=0,sd=error_term) # generate the stochastic rewards
-  mu <- as.data.frame(cbind(1:nt,mu))
-  rewards <- as.data.frame(cbind(1:nt,rewards))
-  colnames(rewards) <- colnames(mu) <- c("trial",paste0("A",1:no))
-  
-  return(rewards)
-}
-``` 
+## Key Findings
 
-### Generating fake data
-Behavioural data is simulated using the following function, which takes an environment (data), a list of model's functions in string form (funs), a list of parameters for each of the functions in vector form (pars), number of arms (no), and number of trials (nt). 
-``` 
-# CSV form
-sim_behav_data_csv <- function(data, funs, pars, no, nt, envir = parent.frame()){
-  mat <- matrix(0, nrow = length(funs)*nt, ncol = 3)
-  for (i in 1:length(funs)){
-    fun <- funs[i]
-    par <- as.numeric(unlist(pars[i]))
-    sim <- do.call(fun, c(list(data), par[1:length(par)]))
-    x <- (i-1)*nt + 1
-    y <- i*nt
-    mat[x:y ,1] <- rep(i, nt)
-    mat[x:y ,2] <- head(sim$choices, nt)
-    mat[x:y ,3] <- head(sim$agents_rewards, nt)
-  }
-  mats <- as.data.frame(cbind(1:nt, mat))
-  colnames(mats) <- c("trial", "id", "deck", "payoff")
-  return(data_sim = mats)
-}
+* **Asymmetries** observed in human data can often be **explained by initialization or autocorrelation**.
+* The best-fitting models across datasets were often symmetric once expectation priors were appropriately accounted for.
+* Model recovery analysis showed significant **overlap between models**, supporting a **more cautious interpretation** of asymmetric learning claims.
 
-# Multi-dim array form 
+## Repository Contents
 
-sim_behav_data_3d <- function(data, funs, pars, no, nt, envir = parent.frame()){
-  df <- array(0, c(nt,4,length(funs)))
-  for (i in 1:length(funs)){
-    fun <- funs[i]
-    print(pars[1])
-    par <- as.numeric(unlist(pars[i]))
-    print(par)
-    sim <- do.call(fun, c(list(data), par[1:length(par)]))
-    df[ ,1 , i] <- rep(1:nt, 1)
-    df[ ,2 ,i] <- rep(i, nt)
-    df[ ,3 ,i]<- head(sim$choices, nt)
-    df[ ,4 ,i] <- head(sim$agents_rewards, nt)
-  }
-  colnames(df) <- c("trial", "id", "deck", "payoff")
-  
-  return(data_sim = df)
-}
+* `MSc_thesis.pdf`: Full manuscript
+* `Q_learning_models.R`, `Kf_UCB_models.R`: Agent simulations
+* `par_est_Q_learning.R`, `par_est_UCB.R`: DEoptim parameter estimation
+* `figures/`, `results/`, `analysis/`: Evaluation outputs and comparison metrics
+* `data/`: Behavioral datasets and simulated environments
 
-# example 
-df_sim <- sim_behav_data_csv(rewards, c("ucb_sim"), list(c(0, 1000, 16,16, 1.96)), 8, 80)
-```
-The output:
-* trial: trial number
-* id: the model used with respect to the order they were passed
-* deck: the chosen arm
-* payoff: reward received from the chosen deck at that trial
+## Citation
 
+If using this work for reference or teaching:
 
-### Parameter estimation function
-The following function takes a list of upper and lower limits (lpar and upar), negloglikDE function (fun), behavioural data (df), number of arms (no), and number of trials (nt).
-```
-find_the_best_pars <- function(lpar, upar, fun, df, nm, nt){
-  value <- rep("NA", nm)
-  parameter <- rep(0, nm)
-  for (i in 1:nm){
-    x <- (i-1)*nt + 1
-    y <- i*nt
-    est_DE <- DEoptim(fun,lower=as.double(lpar),
-                      upper=as.double(upar),data=df[x:y,],
-                      control=DEoptim.control(trace=FALSE))
-    value[i] <- list(est_DE$optim$bestval)
-    parameter[i] <- list(est_DE$optim$bestmem)
-  }
-  return(list(parameter = parameter, value = value))
-}
+> Mehrvarz, M. (2020). *Asymmetric Belief Updating in Instrumental Learning*. MSc Thesis, University College London. Supervised by Maarten Speekenbrink.
 
+---
 
-# example:
-
-est <- find_the_best_pars(c(.0001, .0001), c(100, 1), sym_negLogLik_DE, 
-                          df_sim, 1, 80)
-```
-
-### Sampling empirical priors from normal/beta distribution 
-
-```
-# 0 to 1
-sample_beta_dist <- function(l_value, n_sample){
-  mu1 <- mean(l_value)
-  v1 <- sd(l_value)**2
-  a <- (((1-mu1)/v1)-(1/mu1))*(mu1**2)
-  b <- a*((1/mu1)-1)
-  r_v <- rbeta(n_sample, a, b)
-  return(r_v)
-}
-
-# 0 to +inf
-sample_log_dist <- function(l_value, n_sample){
-  l_value <- log(l_value)
-  mu1 <- mean(l_value)
-  s1 <- sd(l_value)
-  r_v <- exp(rnorm(n_sample, mu1, s1))
-  return(r_v)
-}
-
-# -inf to +inf 
-sample_norm_dist <- function(l_value, n_sample){
-  mu1 <- mean(l_value)
-  s1 <- sd(l_value)
-  r_v <- rnorm(n_sample, mu1, s1)
-  return(r_v)
-}
-```
-### Server runs
-
-* est_Speekenbrink_Konstantinidis_2015.R: parameter estimation and negloglik value for all four conditions using 5 different seeds (Results obtained).
-* est_S&K_best_fitted.R: model recovery using best-fitted parameters from S&K (2015) estimates as empirical priors (In-progress).
-* est_S&K_emp_dist.R:  model recovery sampling from distributions from S&K (2015) estimated parameters as empirical priors (In-progress).
-
-\* These are only Templates. The actual runs are in the server folder. I manually divided the run into smaller sets so that I can use more cores.
-
-
-
-# How I calculated the AIC and BIC for Speekenbrink & Konstantinidis (2015)
-
-```
-m_df <- readRDS("IGT_values.RDS")# Negative Log-likelihood values
-par_num <- c(2,3,3,4,5,5,5,6,6,7,8,8)
-
-m_bic <- array(0, c(80,12,5))
-m_aic <- array(0, c(80,12,5))
-
-for (s in 1:5){
-  for (id in 1:80){
-    m_aic[id, ,s] <- m_df[id, ,s]*2 + 2*par_num
-    m_bic[id, ,i] <- m_df[id,,i]*2 + log(80)*par_num    
-  }
-}
-```
-
-
+This project is made available for academic and educational use only. No publication was submitted, but the modeling infrastructure may be useful to others.
